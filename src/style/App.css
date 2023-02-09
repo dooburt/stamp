@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Outfit';
+  src: local('Outfit'),
+    url('../assets/fonts/Outfit/static/Outfit-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Red Hat Display';
+  src: local('Red Hat Display'),
+    url('../assets/fonts/Red_Hat_Display/static/RedHatDisplay-Regular.ttf')
+      format('truetype');
+}
+
+body,
+th {
+  font-family: 'Outfit', sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Red Hat Display', Outfit, sans-serif;
+}
