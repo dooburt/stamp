@@ -5,13 +5,14 @@
 @font-face {
   font-family: 'Outfit';
   src: local('Outfit'),
-    url('../assets/fonts/Outfit/static/Outfit-Regular.ttf') format('truetype');
+    url('../resources/fonts/Outfit/static/Outfit-Regular.ttf')
+      format('truetype');
 }
 
 @font-face {
   font-family: 'Red Hat Display';
   src: local('Red Hat Display'),
-    url('../assets/fonts/Red_Hat_Display/static/RedHatDisplay-Regular.ttf')
+    url('../resources/fonts/Red_Hat_Display/static/RedHatDisplay-Regular.ttf')
       format('truetype');
 }
 

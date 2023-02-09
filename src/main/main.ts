@@ -9,19 +9,9 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
+import { app, BrowserWindow, shell, ipcMain, protocol } from 'electron';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-
-class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
-  }
-}
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -109,7 +99,7 @@ const createWindow = async () => {
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
-  new AppUpdater();
+  //new AppUpdater();
 };
 
 /**
@@ -124,14 +114,22 @@ app.on('window-all-closed', () => {
   }
 });
 
-app
-  .whenReady()
-  .then(() => {
-    createWindow();
-    app.on('activate', () => {
-      // On macOS it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createWindow();
-    });
-  })
-  .catch(console.log);
+app.on('ready', async () => {
+  protocol.registerFileProtocol('atom', (request, callback) => {
+    const url = request.url.replace(`atom://`, '');
+    try {
+      console.log('atom callback', url);
+      return callback(url);
+    } catch (error) {
+      console.error(error);
+      return callback('404');
+    }
+  });
+
+  createWindow();
+  app.on('activate', () => {
+    // On macOS it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (mainWindow === null) createWindow();
+  });
+});
