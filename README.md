@@ -1,5 +1,3 @@
-<img src=".erb/img/erb-banner.svg" width="100%" />
-
 # Peekaboo
 
 Peekaboo is an Electron app with the contents built with React and Tailwind.
