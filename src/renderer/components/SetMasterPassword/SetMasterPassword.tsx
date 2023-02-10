@@ -49,7 +49,10 @@ function SetMasterPassword() {
           />
           {renderEye()}
           <div className="ml-2">
-            <Button label={renderArrow()} classes={['h-12', 'w-[71px]']} />
+            <Button
+              label={renderArrow()}
+              classes={['h-12', 'w-[71px]', 'hover:cursor-pointer']}
+            />
           </div>
         </div>
         <PasswordStrengthMeter password={password} />

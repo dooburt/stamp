@@ -20,6 +20,14 @@
   -webkit-app-region: drag;
 }
 
+:not(input):not(textarea),
+:not(input):not(textarea)::after,
+:not(input):not(textarea)::before {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+
 body,
 th {
   font-family: 'Outfit', sans-serif;
