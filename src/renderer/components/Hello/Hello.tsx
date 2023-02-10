@@ -9,12 +9,12 @@ function Hello() {
     <div>
       <div className="grid grid-cols-12 min-h-screen w-full">
         <div className="flex col-span-4 justify-center bg-gray-100">&nbsp;</div>
-        <div className="flex col-span-8 justify-center items-center">
+        <div className="flex col-span-8 justify-center items-center w-128 m-auto">
           <div className="flex flex-col p-6 max-w-md justify-center">
             <div className="flex flex-row mb-6">
               <Avatar />
               <div className="ml-4 mt-8">
-                <Heading title="Hello" />
+                <Heading title="Hello there 👋" />
               </div>
             </div>
             <p className="text-slate-500">
