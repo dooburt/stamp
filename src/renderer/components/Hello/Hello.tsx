@@ -5,8 +5,13 @@
 
 function Hello() {
   return (
-    <div className="absolute inset-0 bg-white text-center h-full flex flex-col justify justify-center">
-      ERB + TAILWIND = ❤
+    <div>
+      <div className="grid grid-cols-12 min-h-screen w-full">
+        <div className="flex col-span-4 justify-center bg-gray-100">&nbsp;</div>
+        <div className="flex col-span-8 justify-center items-center">
+          xERB + TAILWINDx = ❤
+        </div>
+      </div>
     </div>
   );
 }

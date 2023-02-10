@@ -4,12 +4,10 @@ import './styles/app.css';
 
 export default function App() {
   return (
-    <div className="container">
-      <Router>
-        <Routes>
-          <Route path="/" element={<Hello />} />
-        </Routes>
-      </Router>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Hello />} />
+      </Routes>
+    </Router>
   );
 }
