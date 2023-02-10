@@ -9,7 +9,7 @@ type ButtonProps = {
   styles?: any;
   loading?: boolean;
   classes?: string[];
-  label: string;
+  label: any;
   handleClick?: (e: any) => void;
 };
 
