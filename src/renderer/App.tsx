@@ -6,7 +6,7 @@ export default function App() {
   return (
     <>
       <div id="dragbar" className="absolute w-full h-8 bg-gray-500">
-        &nbsp;
+        <p className="text-white p-1 pl-4">Peekaboo</p>
       </div>
       <Router>
         <Routes>
