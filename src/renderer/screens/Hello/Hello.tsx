@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/no-unescaped-entities */
-import Avatar from '../Avatar/Avatar';
-import Heading from '../Heading/Heading';
-import SetMasterPassword from '../SetMasterPassword/SetMasterPassword';
+import Avatar from '../../components/Avatar/Avatar';
+import Heading from '../../components/Heading/Heading';
+import SetMasterPassword from '../../components/SetMasterPassword/SetMasterPassword';
 
 function Hello() {
   return (

@@ -1,7 +1,11 @@
+import React from 'react';
 import { motion } from 'framer-motion';
+// import UserContext from '../../context/userContext';
+
 import avatar from '../../resources/avatars/sakura.png';
 
 function Avatar() {
+  // const { avatar } = useContext(UserContext);
   const slideAnimation = {
     initial: { opacity: 0, scale: 0.4 },
     animate: { opacity: 1, scale: 1.0 },
