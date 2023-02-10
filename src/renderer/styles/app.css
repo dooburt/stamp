@@ -16,6 +16,10 @@
       format('truetype');
 }
 
+#dragbar {
+  -webkit-app-region: drag;
+}
+
 body,
 th {
   font-family: 'Outfit', sans-serif;

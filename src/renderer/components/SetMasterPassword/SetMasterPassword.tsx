@@ -7,7 +7,7 @@ function SetMasterPassword() {
           name="masterPassword"
           id="masterPassword"
           className="block w-full rounded-md border-2 p-2 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
-          placeholder="Enter a new password"
+          placeholder="Enter a new master password"
         />
       </form>
     </div>

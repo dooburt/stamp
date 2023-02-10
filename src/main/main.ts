@@ -30,7 +30,7 @@ const isDebug =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 if (isDebug) {
-  require('electron-debug')();
+  require('electron-debug')({ devToolsMode: 'detach' });
 }
 
 const installExtensions = async () => {
@@ -62,12 +62,22 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     show: false,
     width: 1024,
+    minWidth: 1024,
+    minHeight: 728,
+    maxHeight: 728,
     height: 728,
     icon: getAssetPath('icon.png'),
+    frame: false,
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
+    },
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: '#6B7280',
+      symbolColor: '#fff',
+      height: 31,
     },
   });
 

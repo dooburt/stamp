@@ -4,10 +4,15 @@ import './styles/app.css';
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Hello />} />
-      </Routes>
-    </Router>
+    <>
+      <div id="dragbar" className="absolute w-full h-8 bg-gray-500">
+        &nbsp;
+      </div>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Hello />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
