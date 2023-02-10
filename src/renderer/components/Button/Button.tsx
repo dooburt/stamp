@@ -62,7 +62,14 @@ const Button: React.FC<ButtonProps> = ({
       transition={bounce.transition}
       className={classNames(
         mergeClasses(
-          ['rounded-md', 'p-2', 'px-4', 'bg-indigo-500', 'text-white'],
+          [
+            'rounded-md',
+            'p-2',
+            'px-4',
+            'bg-indigo-500',
+            'text-white',
+            'hover:bg-indigo-600',
+          ],
           classes
         )
       )}
