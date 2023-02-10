@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import Button from '../Button/Button';
 import PasswordStrengthMeter from '../PasswordStrengthMeter/PasswordStrengthMeter';
 
 function SetMasterPassword() {
-  const [password, setPassword] = useState();
+  const [password, setPassword] = useState('');
   const [exposed, setExposed] = useState(false);
 
   const handleChange = (event: any) => {
@@ -28,7 +29,9 @@ function SetMasterPassword() {
     );
   };
 
-  console.log('exposed', exposed);
+  const renderArrow = () => {
+    return <FontAwesomeIcon icon={faArrowRight} className="text-white" />;
+  };
 
   return (
     <div>
@@ -46,7 +49,7 @@ function SetMasterPassword() {
           />
           {renderEye()}
           <div className="ml-2">
-            <Button label="Set" classes={['h-12', 'w-[71px]']} />
+            <Button label={renderArrow()} classes={['h-12', 'w-[71px]']} />
           </div>
         </div>
         <PasswordStrengthMeter password={password} />
