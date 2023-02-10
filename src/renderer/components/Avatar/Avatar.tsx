@@ -14,12 +14,13 @@ function Avatar() {
       animate={slideAnimation.animate}
       transition={slideAnimation.transition}
     >
-      <div className="relative w-24 h-24">
-        <img
-          className="rounded-full border border-gray-100 shadow-sm"
-          src={avatar}
-          alt="Your avatar"
-        />
+      <div className="relative rounded-full w-24 h-24 bg-contain bg-slate-200">
+        <div
+          className="w-24 h-24 bg-contain bg-no-repeat"
+          style={{ backgroundImage: `url(${avatar})` }}
+        >
+          &nbsp;
+        </div>
       </div>
     </motion.div>
   );
