@@ -4,6 +4,22 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 contextBridge.exposeInMainWorld('electron', {
+  sniffStore: async () => {
+    try {
+      return await ipcRenderer.invoke('SNIFF_STORE');
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  },
+  createStore: async (key: string) => {
+    try {
+      return await ipcRenderer.invoke('CREATE_STORE', key);
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  },
   setStoreValue: (key: string, data: any) =>
     ipcRenderer.send('SET_STORE_VALUE', key, data),
   getStoreValue: async (key: string) => {

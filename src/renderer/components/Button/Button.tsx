@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import classNames from 'classnames';
 import { mergeClasses } from 'core/utils';
+import { SpinnerCircular } from 'spinners-react';
 
 type ButtonProps = {
   styles?: any;
@@ -44,12 +45,25 @@ const Button: React.FC<ButtonProps> = ({
         transition={bounce.transition}
         className={classNames(
           mergeClasses(
-            ['rounded-md', 'p-2', 'px-4', 'bg-indigo-500', 'text-indigo-300'],
+            [
+              'rounded-md',
+              'p-2',
+              'px-4',
+              'bg-indigo-200',
+              'text-indigo-300',
+              'justify-center',
+              'items-center',
+              'flex',
+            ],
             classes
           )
         )}
       >
-        {label}
+        <SpinnerCircular
+          size="24"
+          color="#fff"
+          secondaryColor="rgb(165 180 252)"
+        />
       </motion.button>
     );
   };

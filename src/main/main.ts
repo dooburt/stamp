@@ -9,26 +9,54 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
+
+// https://texts.com/blog/simplifying-ipc-in-electron
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain, protocol } from 'electron';
+import chalk from 'chalk';
+import dayjs from 'dayjs';
+import fs from 'fs';
 import MenuBuilder from './menu';
-import { resolveHtmlPath } from './util';
-
-let mainWindow: BrowserWindow | null = null;
+import { getAssetsPath, resolveHtmlPath } from './util';
 
 const Store = require('electron-store');
 
-const store = new Store();
+const VERSION = '0.0.1'; // get from package eventually
+
+let mainWindow: BrowserWindow | null = null;
+let localStore: any;
+
+ipcMain.handle('SNIFF_STORE', async (event) => {
+  const storePath = `${app.getPath('userData')}\\peekaboo.json`;
+  const exists = fs.existsSync(storePath);
+  console.log('SNIFF_STORE', exists);
+  // event.reply('SNIFF_STORE', exists);
+  return exists;
+});
+
+ipcMain.on('CREATE_STORE', async (event, key) => {
+  // todo: this all needs heavily encrypting
+  localStore = new Store({
+    name: 'peekaboo',
+    watch: true,
+    // encryptionKey: key,
+  });
+  localStore.set('peekabooKey', {
+    key: key,
+    date: dayjs().toISOString(),
+  });
+  console.log('CREATE_STORE');
+});
 
 ipcMain.on('GET_STORE_VALUE', async (event, key) => {
-  const data = store.get(key);
+  const data = localStore.get(key);
   console.log('GET_STORE_VALUE', data);
   event.reply('GET_STORE_VALUE', data);
 });
 
 ipcMain.on('SET_STORE_VALUE', async (event, key, data) => {
   if (!key) event.reply('SET_STORE_VALUE', null);
-  store.set(key, data);
+  localStore.set(key, data);
   console.log('SET_STORE_VALUE', data);
   event.reply('SET_STORE_VALUE', data);
 });
@@ -138,6 +166,13 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', async () => {
+  console.log(chalk.blue(`Peekaboo v${VERSION} started.`));
+  console.log(chalk.green(`App path: ${app.getPath('userData')}`));
+  console.log(
+    chalk.yellow(`Storage path: ${app.getPath('userData')}\\peekaboo.json`)
+  );
+  console.log(chalk.green(`Asset path: ${getAssetsPath()}`));
+
   protocol.registerFileProtocol('atom', (request, callback) => {
     const url = request.url.replace(`atom://`, '');
     try {

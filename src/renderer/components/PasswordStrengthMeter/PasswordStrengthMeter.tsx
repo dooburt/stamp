@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/function-component-definition */
 import React from 'react';
 import { motion } from 'framer-motion';
@@ -5,10 +6,12 @@ import zxcvbn from 'zxcvbn';
 
 type PasswordStrengthMeterProps = {
   password?: string;
+  onChangeScore: (score: number) => void;
 };
 
 const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
   password,
+  onChangeScore,
 }) => {
   const animation = {
     initial: { opacity: 0, transform: 'translateX(-40px)' },
@@ -21,21 +24,23 @@ const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
   const htmlTestedScore = (score: number) => {
     switch (score) {
       case 0:
-        return { html: '0%', label: 'Weak' };
+        return { html: '0%', label: 'Weak', score: 0 };
       case 1:
-        return { html: '25%', label: 'Poor' };
+        return { html: '25%', label: 'Poor', score: 1 };
       case 2:
-        return { html: '50%', label: 'Could be better' };
+        return { html: '50%', label: 'Could be better', score: 2 };
       case 3:
-        return { html: '75%', label: 'Nearly' };
+        return { html: '75%', label: 'Nearly', score: 3 };
       case 4:
-        return { html: '100%', label: 'Lovely' };
+        return { html: '100%', label: 'Lovely', score: 4 };
       default:
-        return { html: '0%', label: 'Weak' };
+        return { html: '0%', label: 'Weak', score: 0 };
     }
   };
 
   const score = htmlTestedScore(testedScore.score);
+
+  onChangeScore(score.score);
 
   return (
     <motion.div

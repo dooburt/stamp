@@ -8,13 +8,33 @@ import PasswordStrengthMeter from '../PasswordStrengthMeter/PasswordStrengthMete
 function SetMasterPassword() {
   const [password, setPassword] = useState('');
   const [exposed, setExposed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [disabled, setDisabled] = useState(true);
+  const [score, setScore] = useState(0);
 
   const handleChange = (event: any) => {
     setPassword(event.target.value);
   };
 
+  const handleScore = (event: number) => {
+    setScore(event);
+    if (event >= 4) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
+  };
+
   const handleExposePassword = () => {
     setExposed(!exposed);
+  };
+
+  const handleSubmit = () => {
+    if (!password) return null;
+    setLoading(true);
+    setDisabled(true);
+    window.electron.createStore(password);
+    return null;
   };
 
   const renderEye = () => {
@@ -33,6 +53,8 @@ function SetMasterPassword() {
     return <FontAwesomeIcon icon={faArrowRight} className="text-white" />;
   };
 
+  const disabledOrLoading = disabled || loading;
+
   return (
     <div>
       <div className="mt-8 space-y-2">
@@ -40,6 +62,7 @@ function SetMasterPassword() {
           <input
             autoComplete="off"
             type={exposed ? 'text' : 'password'}
+            disabled={loading}
             name="masterPassword"
             id="masterPassword"
             value={password}
@@ -51,7 +74,8 @@ function SetMasterPassword() {
           <div className="ml-2">
             <Button
               label={renderArrow()}
-              // disabled={disabled}
+              disabled={disabledOrLoading}
+              loading={loading}
               classes={[
                 'h-12',
                 'w-[71px]',
@@ -59,10 +83,14 @@ function SetMasterPassword() {
                 'disabled:bg-gray-200',
                 'disabled:text-gray-500',
               ]}
+              handleClick={handleSubmit}
             />
           </div>
         </div>
-        <PasswordStrengthMeter password={password} />
+        <PasswordStrengthMeter
+          password={password}
+          onChangeScore={handleScore}
+        />
       </div>
     </div>
   );
