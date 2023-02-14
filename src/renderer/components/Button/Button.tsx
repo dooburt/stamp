@@ -3,8 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import classNames from 'classnames';
-import { mergeClasses } from 'core/utils';
 import { SpinnerCircular } from 'spinners-react';
+import { mergeClasses } from '../../core/utils';
 
 type ButtonProps = {
   styles?: any;

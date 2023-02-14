@@ -10,14 +10,13 @@ function SetMasterPassword() {
   const [exposed, setExposed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(true);
-  const [score, setScore] = useState(0);
+  // const [score, setScore] = useState(0);
 
   const handleChange = (event: any) => {
     setPassword(event.target.value);
   };
 
   const handleScore = (event: number) => {
-    setScore(event);
     if (event >= 4) {
       setDisabled(false);
     } else {

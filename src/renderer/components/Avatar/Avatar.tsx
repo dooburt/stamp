@@ -2,7 +2,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 // import UserContext from '../../context/userContext';
 
-import avatar from '../../resources/avatars/sakura.png';
+import avatar from '../../assets/avatars/sakura.png';
+
+const img = require('../../assets/avatars/tiki.png');
 
 function Avatar() {
   // const { avatar } = useContext(UserContext);
@@ -21,7 +23,7 @@ function Avatar() {
       <div className="relative rounded-full w-24 h-24 bg-contain bg-slate-200">
         <div
           className="w-24 h-24 bg-contain bg-no-repeat"
-          style={{ backgroundImage: `url(${avatar})` }}
+          style={{ backgroundImage: `url(${img})` }}
         >
           &nbsp;
         </div>

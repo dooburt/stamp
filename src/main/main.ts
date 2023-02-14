@@ -26,7 +26,7 @@ const VERSION = '0.0.1'; // get from package eventually
 let mainWindow: BrowserWindow | null = null;
 let localStore: any;
 
-ipcMain.handle('SNIFF_STORE', async (event) => {
+ipcMain.handle('SNIFF_STORE', async () => {
   const storePath = `${app.getPath('userData')}\\peekaboo.json`;
   const exists = fs.existsSync(storePath);
   console.log('SNIFF_STORE', exists);
@@ -92,8 +92,8 @@ const createWindow = async () => {
   }
 
   const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../assets');
+    ? path.join(process.resourcesPath, 'resources')
+    : path.join(__dirname, '../../resources');
 
   const getAssetPath = (...paths: string[]): string => {
     return path.join(RESOURCES_PATH, ...paths);
