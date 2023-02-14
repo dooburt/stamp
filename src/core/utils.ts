@@ -19,6 +19,7 @@ export const isEmptyObject = (obj: any) => {
  * The fixed index on usage is intentional and can be any fixed number within range
  * Usage: `shuffle(addresses)[2]`
  * @param {Array} array of data to shuffle
+ * @returns {Array} a reshuffled array
  */
 export const shuffle = (arr: any) => {
   for (let i = arr.length - 1; i > 0; i--) {

@@ -1,6 +1,15 @@
 /* eslint import/prefer-default-export: off */
-import { URL } from 'url';
-import path from 'path';
+const crypto = require('crypto');
+const path = require('path');
+const { URL } = require('url');
+
+const algorithm = 'aes-256-ctr';
+const iv = crypto.randomBytes(16);
+
+type EncryptedBlock = {
+  iv: string;
+  content: string;
+};
 
 export function resolveHtmlPath(htmlFileName: string) {
   if (process.env.NODE_ENV === 'development') {
@@ -11,3 +20,29 @@ export function resolveHtmlPath(htmlFileName: string) {
   }
   return `file://${path.resolve(__dirname, '../renderer/', htmlFileName)}`;
 }
+
+export const encrypt = (text: string, secretKey: string) => {
+  const cipher = crypto.createCipheriv(algorithm, secretKey, iv);
+
+  const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+
+  return {
+    iv: iv.toString('hex'),
+    content: encrypted.toString('hex'),
+  };
+};
+
+export const decrypt = (hash: EncryptedBlock, secretKey: string) => {
+  const decipher = crypto.createDecipheriv(
+    algorithm,
+    secretKey,
+    Buffer.from(hash.iv, 'hex')
+  );
+
+  const decrpyted = Buffer.concat([
+    decipher.update(Buffer.from(hash.content, 'hex')),
+    decipher.final(),
+  ]);
+
+  return decrpyted.toString();
+};

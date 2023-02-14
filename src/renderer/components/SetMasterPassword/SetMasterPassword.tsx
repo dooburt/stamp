@@ -43,7 +43,7 @@ function SetMasterPassword() {
             name="masterPassword"
             id="masterPassword"
             value={password}
-            className="w-[320px] block rounded-md border-2 p-2 border-indigo-500 focus:border-indigo-500 focus:ring-indigo-600 outline-indigo-700 h-12 bg-gray-100"
+            className="w-[320px] block rounded-md border-2 p-2 border-indigo-500 focus:border-indigo-500 focus:ring-indigo-600 outline-indigo-700 h-12"
             placeholder="Enter a new master password"
             onChange={handleChange}
           />
@@ -51,7 +51,14 @@ function SetMasterPassword() {
           <div className="ml-2">
             <Button
               label={renderArrow()}
-              classes={['h-12', 'w-[71px]', 'hover:cursor-pointer']}
+              // disabled={disabled}
+              classes={[
+                'h-12',
+                'w-[71px]',
+                'hover:cursor-pointer',
+                'disabled:bg-gray-200',
+                'disabled:text-gray-500',
+              ]}
             />
           </div>
         </div>

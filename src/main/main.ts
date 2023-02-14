@@ -1,3 +1,4 @@
+/* eslint-disable object-shorthand */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 /**
@@ -15,10 +16,21 @@ import { resolveHtmlPath } from './util';
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
+const Store = require('electron-store');
+
+const store = new Store();
+
+ipcMain.on('GET_STORE_VALUE', async (event, key) => {
+  const data = store.get(key);
+  console.log('GET_STORE_VALUE', data);
+  event.reply('GET_STORE_VALUE', data);
+});
+
+ipcMain.on('SET_STORE_VALUE', async (event, key, data) => {
+  if (!key) event.reply('SET_STORE_VALUE', null);
+  store.set(key, data);
+  console.log('SET_STORE_VALUE', data);
+  event.reply('SET_STORE_VALUE', data);
 });
 
 if (process.env.NODE_ENV === 'production') {

@@ -10,6 +10,7 @@ type ButtonProps = {
   loading?: boolean;
   classes?: string[];
   label: any;
+  disabled?: boolean | undefined;
   handleClick?: (e: any) => void;
 };
 
@@ -18,6 +19,7 @@ const Button: React.FC<ButtonProps> = ({
   loading,
   classes,
   label,
+  disabled,
   handleClick,
 }) => {
   const bounce = {
@@ -60,6 +62,7 @@ const Button: React.FC<ButtonProps> = ({
       initial={bounce.initial}
       animate={bounce.animate}
       transition={bounce.transition}
+      disabled={disabled}
       className={classNames(
         mergeClasses(
           [
@@ -84,6 +87,7 @@ Button.defaultProps = {
   styles: null,
   loading: false,
   classes: [],
+  disabled: false,
   handleClick: () => {},
 };
 
