@@ -4,10 +4,10 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import EnterMasterPassword from 'renderer/components/EnterMasterPassword/EnterMasterPassword';
+import Splashback from 'renderer/components/Splashback/Splashback';
 import Avatar from '../../components/Avatar/Avatar';
 import Heading from '../../components/Heading/Heading';
 import SetMasterPassword from '../../components/SetMasterPassword/SetMasterPassword';
-import Splashback from 'renderer/components/Splashback/Splashback';
 
 function PreTouch() {
   return (

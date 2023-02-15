@@ -1,4 +1,6 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
+
+import Dashboard from './screens/Dashboard/Dashboard';
 import Hello from './screens/Hello/Hello';
 
 import './styles/app.css';
@@ -11,6 +13,7 @@ export default function App() {
       </div>
       <Router>
         <Routes>
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/" element={<Hello />} />
         </Routes>
       </Router>
