@@ -7,6 +7,7 @@ import EnterMasterPassword from 'renderer/components/EnterMasterPassword/EnterMa
 import Avatar from '../../components/Avatar/Avatar';
 import Heading from '../../components/Heading/Heading';
 import SetMasterPassword from '../../components/SetMasterPassword/SetMasterPassword';
+import Splashback from 'renderer/components/Splashback/Splashback';
 
 function PreTouch() {
   return (
@@ -14,7 +15,7 @@ function PreTouch() {
       <div className="flex flex-row mb-6">
         <Avatar />
         <div className="ml-4 mt-8">
-          <Heading title="Hello there 👋" />
+          <Heading title="Hello 👋" />
         </div>
       </div>
       <p className="text-slate-500">
@@ -32,7 +33,7 @@ function Touched() {
       <div className="flex flex-row mb-6">
         <Avatar />
         <div className="ml-4 mt-8">
-          <Heading title="Hey 👋" />
+          <Heading title="Hey there 👋" />
         </div>
       </div>
       <p className="text-slate-500">
@@ -71,9 +72,9 @@ function Hello() {
           initial={slideAnimation.initial}
           animate={slideAnimation.animate}
           transition={slideAnimation.transition}
-          className="flex col-span-4 justify-center bg-gray-100"
+          className="flex col-span-4 justify-center bg-gray-100 -z-20 border border-r-2 border-slate-100"
         >
-          &nbsp;
+          <Splashback />
         </motion.div>
         <div className="flex col-span-8 justify-center items-center w-128 m-auto">
           <div className="flex flex-col p-6 max-w-md justify-center">

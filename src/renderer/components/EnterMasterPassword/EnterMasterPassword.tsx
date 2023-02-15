@@ -14,10 +14,12 @@ function EnterMasterPassword() {
     setPassword(event.target.value);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!password) return null;
     setLoading(true);
-
+    const auth = await window.electron.authenticate(password);
+    console.log('auth', auth);
+    setLoading(false);
     return null;
   };
 

@@ -20,6 +20,15 @@ contextBridge.exposeInMainWorld('electron', {
       return false;
     }
   },
+  authenticate: async (key: string) => {
+    console.log('contextBridge AUTHENTICATE');
+    try {
+      return await ipcRenderer.invoke('AUTHENTICATE', key);
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  },
   setStoreValue: (key: string, data: any) =>
     ipcRenderer.send('SET_STORE_VALUE', key, data),
   getStoreValue: async (key: string) => {

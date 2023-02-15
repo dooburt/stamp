@@ -1,10 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-// import UserContext from '../../context/userContext';
+import { shuffle } from 'renderer/core/utils';
 
-import avatar from '../../assets/avatars/sakura.png';
+import { avatars } from 'renderer/constants/avatars';
 
-const img = require('../../assets/avatars/tiki.png');
+const getRandomAvatar = () => {
+  const random = shuffle(avatars)[2];
+  return random;
+};
 
 function Avatar() {
   // const { avatar } = useContext(UserContext);
@@ -23,7 +26,7 @@ function Avatar() {
       <div className="relative rounded-full w-24 h-24 bg-contain bg-slate-200">
         <div
           className="w-24 h-24 bg-contain bg-no-repeat"
-          style={{ backgroundImage: `url(${img})` }}
+          style={{ backgroundImage: `url(${getRandomAvatar().asset})` }}
         >
           &nbsp;
         </div>

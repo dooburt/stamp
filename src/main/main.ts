@@ -24,7 +24,13 @@ const Store = require('electron-store');
 const VERSION = '0.0.1'; // get from package eventually
 
 let mainWindow: BrowserWindow | null = null;
-let localStore: any;
+// let localStore: any;
+
+const localStore = new Store({
+  name: 'peekaboo',
+  watch: true,
+  // encryptionKey: key,
+});
 
 ipcMain.handle('SNIFF_STORE', async () => {
   const storePath = `${app.getPath('userData')}\\peekaboo.json`;
@@ -36,16 +42,20 @@ ipcMain.handle('SNIFF_STORE', async () => {
 
 ipcMain.on('CREATE_STORE', async (event, key) => {
   // todo: this all needs heavily encrypting
-  localStore = new Store({
-    name: 'peekaboo',
-    watch: true,
-    // encryptionKey: key,
-  });
   localStore.set('peekabooKey', {
     key: key,
     date: dayjs().toISOString(),
   });
   console.log('CREATE_STORE');
+});
+
+ipcMain.handle('AUTHENTICATE', async (event, key) => {
+  const stored = localStore.get('peekabooKey').key;
+  // todo: encrypt given key here and compare with stored.
+  if (stored === key) {
+    return true;
+  }
+  return false;
 });
 
 ipcMain.on('GET_STORE_VALUE', async (event, key) => {
