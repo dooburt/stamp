@@ -22,6 +22,8 @@ import { getAssetsPath, resolveHtmlPath } from './util';
 const Store = require('electron-store');
 
 const VERSION = '0.0.1'; // get from package eventually
+const HEIGHT = 728;
+const WIDTH = 1024;
 
 let mainWindow: BrowserWindow | null = null;
 // let localStore: any;
@@ -111,12 +113,12 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    minWidth: 1024,
-    maxWidth: 1024,
-    minHeight: 728,
-    maxHeight: 728,
-    height: 728,
+    width: WIDTH,
+    minWidth: WIDTH,
+    maxWidth: WIDTH,
+    minHeight: HEIGHT,
+    maxHeight: HEIGHT,
+    height: HEIGHT,
     icon: getAssetPath('icon.png'),
     frame: false,
     webPreferences: {

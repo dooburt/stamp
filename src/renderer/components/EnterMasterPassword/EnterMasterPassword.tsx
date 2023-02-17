@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable no-console */
 import React, { useState } from 'react';
