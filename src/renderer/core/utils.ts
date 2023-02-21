@@ -44,3 +44,11 @@ export const shuffle = (arr: any) => {
 export const pickColor = (colorWanted: string) => {
   return colorMap.find((co) => co.color === colorWanted) || colorMap[0];
 };
+
+export const initialsGenerator = (name: string) => {
+  const split = name.split(' ');
+  if (split.length === 1) return name.charAt(0).toUpperCase();
+  return `${split[0].charAt(0).toUpperCase()}${split[1]
+    .charAt(0)
+    .toUpperCase()}`;
+};

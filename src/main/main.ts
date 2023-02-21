@@ -12,7 +12,7 @@
 
 // https://texts.com/blog/simplifying-ipc-in-electron
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, protocol } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, protocol, dialog } from 'electron';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 import fs from 'fs';
@@ -34,6 +34,14 @@ const localStore = new Store({
   // encryptionKey: key,
 });
 
+ipcMain.handle('SELECT_DIR', async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openDirectory'],
+  });
+  console.log('directories selected', result.filePaths);
+  return result;
+});
+
 ipcMain.handle('SNIFF_STORE', async () => {
   const storePath = `${app.getPath('userData')}\\peekaboo.json`;
   const exists = fs.existsSync(storePath);
@@ -42,7 +50,7 @@ ipcMain.handle('SNIFF_STORE', async () => {
   return exists;
 });
 
-ipcMain.on('CREATE_STORE', async (event, key) => {
+ipcMain.handle('CREATE_STORE', async (event, key) => {
   // todo: this all needs heavily encrypting
   localStore.set('peekabooKey', {
     key: key,

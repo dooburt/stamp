@@ -2,16 +2,15 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
 import { motion } from 'framer-motion';
-import { pickColor } from 'renderer/core/utils';
+import { initialsGenerator, pickColor } from 'renderer/core/utils';
 
 type ItemProps = {
   title: string;
-  initials?: string;
   path: string;
   color?: string;
 };
 
-const Item: React.FC<ItemProps> = ({ title, initials, path, color }) => {
+const Item: React.FC<ItemProps> = ({ title, path, color }) => {
   const animation = {
     initial: { opacity: 0, transform: 'translateX(-40px)' },
     animate: { opacity: 1, transform: 'translateX(0px)' },
@@ -19,6 +18,7 @@ const Item: React.FC<ItemProps> = ({ title, initials, path, color }) => {
   };
 
   const selectedColor = pickColor(color || 'yellow');
+  const generatedInitials = initialsGenerator(title);
 
   return (
     <motion.li
@@ -32,7 +32,7 @@ const Item: React.FC<ItemProps> = ({ title, initials, path, color }) => {
           <div
             className={`flex w-10 h-10 ${selectedColor.background} ${selectedColor.text} font-bold p-2 justify-center items-center m-2 rounded-lg`}
           >
-            {initials}
+            {generatedInitials}
           </div>
         </div>
         <div className="flex-grow">
@@ -45,7 +45,6 @@ const Item: React.FC<ItemProps> = ({ title, initials, path, color }) => {
 };
 
 Item.defaultProps = {
-  initials: '??',
   color: 'yellow',
 };
 

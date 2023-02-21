@@ -1,56 +1,136 @@
-function AddItemModal() {
-  return (
-    <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-      <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-        <div className="sm:flex sm:items-start">
-          <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-            <svg
-              className="h-6 w-6 text-red-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              aria-hidden="true"
+/* eslint-disable react/function-component-definition */
+import React, { useEffect, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { SpinnerCircular } from 'spinners-react';
+import folder from '../../assets/icons/folder.png';
+import file from '../../assets/icons/file.png';
+import files from '../../assets/icons/documents.png';
+
+type AddItemModalProps = {
+  open: boolean;
+  onClose: () => void;
+};
+
+const AddItemModal: React.FC<AddItemModalProps> = ({ open, onClose }) => {
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const handleEsc = (event: any) => {
+      if (event.keyCode === 27 && !loading) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, [onClose, loading]);
+
+  const renderLoading = () => {
+    return (
+      <div className="flex flex-col items-center justify-center py-4">
+        <SpinnerCircular size="64" color="#eef2ff" secondaryColor="#4f46e5" />
+        <span className="text-indigo-800 text-3xl animate-pulse block">
+          Just a moment...
+        </span>
+      </div>
+    );
+  };
+
+  const handleFolderSelect = async () => {
+    const dir = await window.electron.selectDir();
+    if (dir.canceled) return null;
+    console.log('dir', dir);
+    setLoading(true);
+
+    // todo: do the encryption here, add to the peekaboo file
+
+    onClose();
+    return null;
+  };
+
+  const renderClose = () => {
+    return (
+      <div className="absolute top-4 right-4">
+        <button type="button" onClick={onClose}>
+          <FontAwesomeIcon icon={faXmark} className="text-slate-600 text-lg" />
+        </button>
+      </div>
+    );
+  };
+
+  const renderModalContent = () => {
+    return (
+      <div className="bg-white px-4 pt-2 pb-4">
+        <div>
+          <div className="w-full pb-4">
+            <p className="text-slate-600 mb-8 text-sm">
+              <span className="pr-1 text-indigo-800 font-bold">Be aware!</span>{' '}
+              On making a selection, Peekaboo will immediately encrypt and move
+              your selection from its location. The contents of your selection{' '}
+              <span className="pr-1 text-indigo-700 underline">
+                will only be retrievable via Peekaboo and your master password
+              </span>
+              .
+            </p>
+            <button
+              type="button"
+              className="inline-flex hover:bg-indigo-200 w-full mb-1 bg-slate-100 text-slate-800 rounded-md px-4 py-2 text-base font-medium"
+              onClick={handleFolderSelect}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-              />
-            </svg>
+              <img src={folder} alt="Folder" width="32px" className="mr-2" />{' '}
+              <span className="inline-block pt-1">
+                A folder of files and folders
+              </span>
+            </button>
+            <button
+              type="button"
+              className="inline-flex hover:bg-indigo-200 w-full mb-1 bg-slate-100 text-slate-800 rounded-md px-4 py-2 text-base font-medium"
+            >
+              <img src={file} alt="File" width="32px" className="mr-2" />{' '}
+              <span className="inline-block pt-1">A single file</span>
+            </button>
+            <button
+              type="button"
+              className="inline-flex hover:bg-indigo-200 w-full mb-1 bg-slate-100 text-slate-800 rounded-md px-4 py-2 text-base font-medium"
+            >
+              <img src={files} alt="File" width="32px" className="mr-2" />{' '}
+              <span className="inline-block pt-1">
+                A selection of loose files
+              </span>
+            </button>
           </div>
-          <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+        </div>
+      </div>
+    );
+  };
+
+  return open ? null : (
+    <>
+      <div className="fixed inset-0 bg-black backdrop-blur-sm bg-opacity-80 transition-opacity">
+        &nbsp;
+      </div>
+      <div className="fixed flex inset-0 z-10 overflow-y-auto justify-center items-center">
+        {/* <div className="flex items-end justify-center p-4 text-center">
+          &nbsp;
+        </div> */}
+        <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+          <div className="bg-slate-100 p-4 border border-b-slate-200 relative">
             <h3
               className="text-lg font-medium leading-6 text-gray-900"
               id="modal-title"
             >
-              Deactivate account
+              What would you like to add to Peekaboo?
             </h3>
-            <div className="mt-2">
-              <p className="text-sm text-gray-500">
-                Are you sure you want to deactivate your account? All of your
-                data will be permanently removed. This action cannot be undone.
-              </p>
-            </div>
+            {loading ? null : renderClose()}
           </div>
+          {loading ? renderLoading() : renderModalContent()}
         </div>
       </div>
-      <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-        <button
-          type="button"
-          className="inline-flex w-full justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-        >
-          Deactivate
-        </button>
-        <button
-          type="button"
-          className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
+    </>
   );
-}
+};
 
 export default AddItemModal;

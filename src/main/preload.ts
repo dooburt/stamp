@@ -12,6 +12,14 @@ contextBridge.exposeInMainWorld('electron', {
       return false;
     }
   },
+  selectDir: async () => {
+    try {
+      return await ipcRenderer.invoke('SELECT_DIR');
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  },
   createStore: async (key: string) => {
     try {
       return await ipcRenderer.invoke('CREATE_STORE', key);

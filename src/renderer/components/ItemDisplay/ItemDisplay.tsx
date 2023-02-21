@@ -64,14 +64,14 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
         <span>C:/Users/dooburt/Documents/Electronic Arts/The Sims 4/Mods</span>
       </span>
 
-      <div className="my-4">
+      <div className="mb-8 mt-8">
         <Button
           label={renderLabel()}
           classes={[
             'h-12',
             'w-full',
-            'bg-emerald-500',
-            'hover:bg-emerald-700',
+            'bg-indigo-500',
+            'hover:bg-indigo-700',
             'disabled:bg-gray-200',
             'disabled:text-gray-500',
           ]}
@@ -86,7 +86,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
               <div className="bg-slate-200 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Status</dt>
                 <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                  <span className="inline px-3 py-1 text-sm font-normal rounded-full text-emerald-500 gap-x-2 bg-emerald-100/60 dark:bg-gray-800">
+                  <span className="inline text-sm font-normal text-emerald-500 dark:bg-gray-800">
                     Locked &amp; Secure
                   </span>
                 </dd>
@@ -94,19 +94,19 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
 
               <div className="bg-slate-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Type</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                <dd className="mt-1 text-sm text-slate-700 sm:col-span-2 sm:mt-0">
                   Folder
                 </dd>
               </div>
               <div className="bg-slate-200 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Size</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                <dd className="mt-1 text-sm text-slate-700 sm:col-span-2 sm:mt-0">
                   12.5Gb
                 </dd>
               </div>
               <div className="bg-slate-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt className="text-sm font-medium text-gray-500">Items</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                <dd className="mt-1 text-sm text-slate-700 sm:col-span-2 sm:mt-0">
                   1,078
                 </dd>
               </div>
