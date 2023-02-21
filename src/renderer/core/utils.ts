@@ -1,3 +1,5 @@
+import colorMap from '../constants/colorMap';
+
 /* eslint-disable no-plusplus */
 export const mergeClasses = (
   inlineArray: string[],
@@ -27,4 +29,18 @@ export const shuffle = (arr: any) => {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
+};
+
+/**
+ * Pick a color from the color map constant. Color must be a tailwind color.
+ * Usage: `pickColor('yellow')`
+ * @param {String} colorWanted color wanted from color map
+ * @returns {Object} a color map object: `{
+    color: 'yellow',
+    background: 'bg-yellow-300',
+    text: 'text-yellow-800',
+  }`
+ */
+export const pickColor = (colorWanted: string) => {
+  return colorMap.find((co) => co.color === colorWanted) || colorMap[0];
 };

@@ -2,11 +2,12 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/no-unescaped-entities */
 import { motion } from 'framer-motion';
-import Splashback from 'renderer/components/Splashback/Splashback';
-import { HEIGHT } from 'renderer/constants/app';
-import ItemTable from 'renderer/components/ItemTable/ItemTable';
-import Heading from 'renderer/components/Heading/Heading';
 import Button from 'renderer/components/Button/Button';
+import ItemDisplay from 'renderer/components/ItemDisplay/ItemDisplay';
+import ItemList from 'renderer/components/ItemList/ItemList';
+import Navigation from 'renderer/components/Navigation/Navigation';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 function Dashboard() {
   const slideAnimation = {
@@ -15,44 +16,56 @@ function Dashboard() {
     transition: { ease: 'easeIn', duration: 0.6 },
   };
 
+  const renderLabel = () => {
+    return (
+      <>
+        <FontAwesomeIcon icon={faPlus} className="text-white" />{' '}
+        <span className="text-white pl-1">New Item</span>
+      </>
+    );
+  };
+
   return (
     <div className="grid grid-cols-12 min-h-screen h-full w-full">
       <motion.div
         initial={slideAnimation.initial}
         animate={slideAnimation.animate}
         transition={slideAnimation.transition}
-        className="flex col-span-1 justify-center bg-gray-100 -z-20 border border-r-2 border-slate-100"
+        className="flex col-span-3 justify-center bg-slate-800 border border-r-2 border-slate-100"
       >
-        <Splashback />
-      </motion.div>
-      <div className="flex col-span-11 w-full mt-10 flex-col">
-        <div className="flex justify-between">
-          <Heading
-            title="Your encrypted items"
-            classes={['w-full', 'mb-10', 'ml-4', 'mt-4']}
-          />
-
-          <div className="flex gap-x-3 mr-4 mt-2">
+        <div className="pt-8 pb-4 px-4 flex flex-col w-full">
+          <div className="flex-grow">
+            <Navigation />
+          </div>
+          <div className="w-full">
             <Button
-              label="Add"
+              label={renderLabel()}
               classes={[
                 'h-12',
-                'w-[71px]',
-                'hover:cursor-pointer',
+                'w-full',
+                'bg-purple-500',
+                'hover:bg-purple-700',
                 'disabled:bg-gray-200',
                 'disabled:text-gray-500',
               ]}
+              handleClick={() => console.log('cobblers')}
             />
           </div>
         </div>
-        <ItemTable />
-        {/* <section className="py-10 bg-gray-100 h-full">
-          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 p-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            <Card />
-            <Card />
-            <Card />
+      </motion.div>
+      <div className="flex col-span-9 w-full">
+        <div className="grid grid-cols-12 w-full mt-8">
+          <div className="flex col-span-5 bg-gray-100 overflow-y-scroll py-4 px-2 border border-r-2 border-slate-100">
+            <ItemList />
           </div>
-        </section> */}
+          <div className="flex col-span-7 overflow-y-scroll py-4 px-4">
+            <ItemDisplay
+              title="Sims Stuff"
+              initials="SS"
+              path="[..]/The Sims 4/Mods"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

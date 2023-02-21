@@ -115,7 +115,6 @@ const createWindow = async () => {
     show: false,
     width: WIDTH,
     minWidth: WIDTH,
-    maxWidth: WIDTH,
     minHeight: HEIGHT,
     maxHeight: HEIGHT,
     height: HEIGHT,
@@ -128,7 +127,7 @@ const createWindow = async () => {
     },
     titleBarStyle: 'hidden',
     titleBarOverlay: {
-      color: '#6B7280',
+      color: '#1E293B',
       symbolColor: '#fff',
       height: 31,
     },

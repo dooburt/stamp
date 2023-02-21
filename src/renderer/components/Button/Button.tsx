@@ -32,6 +32,7 @@ const Button: React.FC<ButtonProps> = ({
   const mergedStyles = { ...styles };
 
   const handler = (event: any) => {
+    console.log('handler');
     if (handleClick) handleClick(event);
     event.stopPropagation();
   };
