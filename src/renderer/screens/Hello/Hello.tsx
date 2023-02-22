@@ -13,7 +13,9 @@ function PreTouch() {
   return (
     <>
       <div className="flex flex-row mb-6">
-        <Avatar />
+        <div className="relative rounded-full w-24 h-24 bg-contain bg-slate-200">
+          <Avatar classes={['w-24', 'h-24']} />
+        </div>
         <div className="ml-4 mt-8">
           <Heading title="Hello 👋" />
         </div>
@@ -31,7 +33,9 @@ function Touched() {
   return (
     <>
       <div className="flex flex-row mb-6">
-        <Avatar />
+        <div className="relative rounded-full w-24 h-24 bg-contain bg-slate-200">
+          <Avatar classes={['w-24', 'h-24']} />
+        </div>
         <div className="ml-4 mt-8">
           <Heading title="Hey there 👋" />
         </div>

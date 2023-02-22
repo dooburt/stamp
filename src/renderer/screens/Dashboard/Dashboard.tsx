@@ -11,6 +11,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import AddItemModal from 'renderer/components/AddItemModal/AddItemModal';
 
+// todo: read the vault contents and return
+
 function Dashboard() {
   const [addNewModalOpen, setAddNewModalOpen] = useState(true);
 

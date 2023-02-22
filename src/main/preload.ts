@@ -4,9 +4,25 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 contextBridge.exposeInMainWorld('electron', {
+  readPeekabooContents: async () => {
+    try {
+      return await ipcRenderer.invoke('READ_PEEKABOO_CONTENTS');
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  },
   sniffStore: async () => {
     try {
       return await ipcRenderer.invoke('SNIFF_STORE');
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  },
+  getUser: async () => {
+    try {
+      return await ipcRenderer.invoke('GET_USER');
     } catch (err) {
       console.error(err);
       return false;
@@ -20,9 +36,9 @@ contextBridge.exposeInMainWorld('electron', {
       return false;
     }
   },
-  encrypt: async () => {
+  encryptDir: async (pathToData: string) => {
     try {
-      return await ipcRenderer.invoke('ENCRYPT');
+      return await ipcRenderer.invoke('ENCRYPT_DIR', pathToData);
     } catch (err) {
       console.error(err);
       return false;

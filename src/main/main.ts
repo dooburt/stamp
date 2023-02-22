@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 /* eslint-disable object-shorthand */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
@@ -16,36 +17,91 @@ import { app, BrowserWindow, shell, ipcMain, protocol, dialog } from 'electron';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 import fs from 'fs';
+
+import zip from './zip';
 import MenuBuilder from './menu';
-import { getAssetsPath, resolveHtmlPath, uniqueName } from './util';
+import {
+  getAssetsPath,
+  getComputerName,
+  resolveHtmlPath,
+  uniqueName,
+} from './util';
+import encryptionPipe from './encryptor';
 
 const Store = require('electron-store');
 
 const VERSION = '0.0.1'; // get from package eventually
 const HEIGHT = 728;
 const WIDTH = 1024;
+const EXTENSION = '.boo';
 
 let mainWindow: BrowserWindow | null = null;
-// let localStore: any;
+let localStore: any = null;
+let rawKey: string = '';
 
-const localStore = new Store({
-  name: 'peekaboo',
-  watch: true,
-  // encryptionKey: key,
+ipcMain.handle('READ_PEEKABOO_CONTENTS', async () => {
+  console.log(chalk.yellow(`READ_PEEKABOO_CONTENTS`));
+  const vaultPath = `${app.getPath('userData')}\\vault\\`;
+  if (!fs.existsSync(vaultPath)) fs.mkdirSync(vaultPath);
+  fs.readdir(vaultPath, function (err, files) {
+    const booFiles = files.filter((el) => path.extname(el) === EXTENSION);
+    return booFiles;
+  });
 });
 
-let rawKey = null;
+ipcMain.handle('ENCRYPT_DIR', async (event, pathToData) => {
+  console.log(chalk.yellow(`ENCRYPT_DIR`, event, pathToData));
 
-ipcMain.handle('ENCRYPT', async (event, pathToData) => {
-  // const stored = localStore.get('peekabooKey').key;
+  const vaultPath = `${app.getPath('userData')}\\vault\\`;
+  if (!fs.existsSync(vaultPath)) fs.mkdirSync(vaultPath);
+
   const obsfucatedName = uniqueName();
-  console.log(chalk.blue(`About to encrypt ${pathToData} ...`));
+  console.log(chalk.blue(`About to encrypt directory: ${pathToData} ...`));
   console.log(chalk.blue(`Will give object name of ${obsfucatedName}`));
-  console.log(chalk.green(`And then move it to: ${app.getPath('userData')}`));
+
+  const booFile = `${vaultPath}\\${obsfucatedName}.boo`;
+  const exists = fs.existsSync(booFile);
+
+  console.log(chalk.green(`And then move it to: ${booFile}`));
+  console.log('ENCRYPT_DIR', 'Does file exist?', exists);
+  if (exists) return false;
+
+  const archive = await zip(pathToData, vaultPath, obsfucatedName);
+  console.log(chalk.green(`Archive created successfully`, archive));
+
+  const encryptedContent = await encryptionPipe(archive, rawKey, booFile);
+  console.log(
+    chalk.green(
+      `Encrypted boofile created successfully`,
+      encryptedContent.iv,
+      encryptedContent.hash
+    )
+  );
+
+  localStore = new Store({
+    name: 'peekaboo',
+    watch: true,
+    // encryptionKey: key,
+  });
+
+  const storeContent = (await localStore.get('contents')) || [];
+  storeContent.push({
+    friendlyName: 'More on this later',
+    secureName: obsfucatedName,
+    originalLocation: pathToData,
+    peekabooLocation: booFile,
+    status: 'locked',
+    diskSize: 12322,
+    itemCount: 1,
+  });
+
+  localStore.set('contents', storeContent);
+
   return true;
 });
 
 ipcMain.handle('SELECT_DIR', async () => {
+  console.log(chalk.yellow(`SELECT_DIR`));
   const result = await dialog.showOpenDialog({
     properties: ['openDirectory'],
   });
@@ -54,6 +110,7 @@ ipcMain.handle('SELECT_DIR', async () => {
 });
 
 ipcMain.handle('SNIFF_STORE', async () => {
+  console.log(chalk.yellow(`SNIFF_STORE`));
   const storePath = `${app.getPath('userData')}\\peekaboo.json`;
   const exists = fs.existsSync(storePath);
   console.log('SNIFF_STORE', exists);
@@ -61,19 +118,50 @@ ipcMain.handle('SNIFF_STORE', async () => {
   return exists;
 });
 
+ipcMain.handle('GET_USER', async () => {
+  console.log(chalk.yellow(`GET_USER`));
+  return localStore.get('user');
+});
+
 ipcMain.handle('CREATE_STORE', async (event, key) => {
+  console.log(chalk.yellow(`CREATE_STORE`));
   // todo: this all needs heavily encrypting
+
+  localStore = new Store({
+    name: 'peekaboo',
+    watch: true,
+    // encryptionKey: key,
+  });
+
+  rawKey = key;
+  const deviceName = getComputerName() || 'ὓṇḵṅṏẁṉ';
   localStore.set('peekabooKey', {
     key: key,
     date: dayjs().toISOString(),
   });
-  console.log('CREATE_STORE');
+  localStore.set('user', {
+    name: deviceName,
+    email: '',
+  });
+  console.log('CREATE_STORE', deviceName);
+  return true;
 });
 
 ipcMain.handle('AUTHENTICATE', async (event, key) => {
+  console.log(chalk.yellow(`AUTHENTICATE`));
+
+  localStore = new Store({
+    name: 'peekaboo',
+    watch: true,
+    // encryptionKey: key,
+  });
+
   const stored = localStore.get('peekabooKey').key;
+  console.log(chalk.yellow(`key`, key));
+  console.log(chalk.yellow(`stored`, stored));
   // todo: encrypt given key here and compare with stored.
   // todo: store the true key in memory, otherwise we cannot encrypt things
+
   if (stored === key) {
     rawKey = key;
     return true;

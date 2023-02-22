@@ -63,6 +63,30 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
       <div>
         <div className="px-2 py-2">
           <span className="block text-sm font-medium text-indigo-500">
+            Friendly label
+          </span>
+          <div className="block text-sm text-gray-900">
+            <Tooltip text="This is your label for the encrypted items">
+              <span className="block text-sm font-normal dark:bg-gray-800 truncate">
+                Sims Stuff
+              </span>
+            </Tooltip>
+          </div>
+        </div>
+        <div className="px-2 py-2">
+          <span className="block text-sm font-medium text-indigo-500">
+            Secure name
+          </span>
+          <div className="block text-sm text-gray-900">
+            <Tooltip text="Peekaboo stores all the items for this encryption in a 'boo' file named this.">
+              <span className="block text-sm font-normal dark:bg-gray-800 truncate">
+                orchid-gorilla-leaf
+              </span>
+            </Tooltip>
+          </div>
+        </div>
+        <div className="px-2 py-2">
+          <span className="block text-sm font-medium text-indigo-500">
             Original location
           </span>
           <div className="block text-sm text-gray-900">

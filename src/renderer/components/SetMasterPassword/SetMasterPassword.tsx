@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 import Button from '../Button/Button';
 import PasswordStrengthMeter from '../PasswordStrengthMeter/PasswordStrengthMeter';
 
 function SetMasterPassword() {
+  const navigate = useNavigate();
+
   const [password, setPassword] = useState('');
   const [exposed, setExposed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -28,12 +31,15 @@ function SetMasterPassword() {
     setExposed(!exposed);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!password) return null;
     setLoading(true);
     setDisabled(true);
-    window.electron.createStore(password);
-    return null;
+    await window.electron.createStore(password);
+    setLoading(false);
+    setDisabled(false);
+    // todo: notification here?
+    return navigate('/dashboard');
   };
 
   const renderEye = () => {
