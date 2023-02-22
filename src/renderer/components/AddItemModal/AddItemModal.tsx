@@ -66,14 +66,12 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ open, onClose }) => {
       <div className="bg-white px-4 pt-2 pb-4">
         <div>
           <div className="w-full pb-4">
-            <p className="text-slate-600 mb-8 text-sm">
-              <span className="pr-1 text-indigo-800 font-bold">Be aware!</span>{' '}
-              On making a selection, Peekaboo will immediately encrypt and move
-              your selection from its location. The contents of your selection{' '}
-              <span className="pr-1 text-indigo-700 underline">
-                will only be retrievable via Peekaboo and your master password
-              </span>
-              .
+            <p className="text-yellow-600 bg-yellow-100 p-2 mb-4 mt-2 rounded text-sm">
+              <span className="font-bold">Beware!</span> On making a selection,
+              Peekaboo will immediately encrypt and move your selection from its
+              location. The contents of your selection{' '}
+              <span className="pr-1 text-yellow-700 underline">will only</span>{' '}
+              be retrievable via Peekaboo and your master password.
             </p>
             <button
               type="button"

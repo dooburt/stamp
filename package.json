@@ -98,6 +98,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.8.1",
     "spinners-react": "^1.0.7",
+    "unique-names-generator": "^4.7.1",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {

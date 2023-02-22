@@ -35,7 +35,7 @@ function Dashboard() {
 
   return (
     <>
-      <div className="grid grid-cols-12 min-h-screen h-full w-full">
+      <div className="grid grid-cols-12 max-h-[1024px] h-screen w-full">
         <motion.div
           initial={slideAnimation.initial}
           animate={slideAnimation.animate}
@@ -43,13 +43,14 @@ function Dashboard() {
           className="flex col-span-3 justify-center bg-slate-800 border border-r-2 border-slate-100"
         >
           <div className="pt-8 pb-4 px-4 flex flex-col w-full">
-            <div className="flex-grow">
+            <div className="basis-10/12">
               <Navigation />
             </div>
             <div className="w-full">
               <Button
                 label={renderLabel()}
                 classes={[
+                  'mt-8',
                   'h-12',
                   'w-full',
                   'bg-slate-600',
@@ -64,10 +65,10 @@ function Dashboard() {
         </motion.div>
         <div className="flex col-span-9 w-full">
           <div className="grid grid-cols-12 w-full mt-8">
-            <div className="flex col-span-5 bg-gray-100 overflow-y-scroll py-4 px-2 border border-r-2 border-slate-100">
+            <div className="flex col-span-5 h-screen bg-gray-100 overflow-y-scroll py-4 px-2 border border-r-2 border-slate-100">
               <ItemList />
             </div>
-            <div className="flex col-span-7 overflow-y-scroll py-4 px-4">
+            <div className="flex col-span-7 h-screen overflow-y-scroll py-4 px-4">
               <ItemDisplay
                 title="Sims Stuff"
                 initials="SS"

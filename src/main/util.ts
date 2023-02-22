@@ -4,6 +4,12 @@ const path = require('path');
 const fs = require('fs');
 const { URL } = require('url');
 const { app } = require('electron');
+const {
+  uniqueNamesGenerator,
+  adjectives,
+  colors,
+  animals,
+} = require('unique-names-generator');
 
 const algorithm = 'aes-256-ctr';
 const iv = crypto.randomBytes(16);
@@ -12,10 +18,20 @@ const appPath = app.getAppPath();
 const assetPath = `${appPath}\\assets`;
 const avatarPath = `${assetPath}\\avatars`;
 
+const customConfig = {
+  dictionaries: [adjectives, colors, animals],
+  separator: '-',
+  length: 2,
+};
+
 type EncryptedBlock = {
   iv: string;
   content: string;
 };
+
+export function uniqueName() {
+  return uniqueNamesGenerator(customConfig);
+}
 
 export function getAssetsPath() {
   if (!fs.existsSync(assetPath)) {

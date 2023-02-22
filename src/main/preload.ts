@@ -20,6 +20,14 @@ contextBridge.exposeInMainWorld('electron', {
       return false;
     }
   },
+  encrypt: async () => {
+    try {
+      return await ipcRenderer.invoke('ENCRYPT');
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  },
   createStore: async (key: string) => {
     try {
       return await ipcRenderer.invoke('CREATE_STORE', key);

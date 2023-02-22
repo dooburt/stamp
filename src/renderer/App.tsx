@@ -14,7 +14,7 @@ export default function App() {
         <img src={logo} alt="Peekaboo" width="20px" className="inline m-2" />
         <span className="text-white inline-block mt-1">Peekaboo</span>
       </div>
-      <div className="h-full">
+      <div className="h-screen overflow-hidden">
         <Router>
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />

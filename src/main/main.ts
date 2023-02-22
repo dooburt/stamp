@@ -17,7 +17,7 @@ import chalk from 'chalk';
 import dayjs from 'dayjs';
 import fs from 'fs';
 import MenuBuilder from './menu';
-import { getAssetsPath, resolveHtmlPath } from './util';
+import { getAssetsPath, resolveHtmlPath, uniqueName } from './util';
 
 const Store = require('electron-store');
 
@@ -32,6 +32,17 @@ const localStore = new Store({
   name: 'peekaboo',
   watch: true,
   // encryptionKey: key,
+});
+
+let rawKey = null;
+
+ipcMain.handle('ENCRYPT', async (event, pathToData) => {
+  // const stored = localStore.get('peekabooKey').key;
+  const obsfucatedName = uniqueName();
+  console.log(chalk.blue(`About to encrypt ${pathToData} ...`));
+  console.log(chalk.blue(`Will give object name of ${obsfucatedName}`));
+  console.log(chalk.green(`And then move it to: ${app.getPath('userData')}`));
+  return true;
 });
 
 ipcMain.handle('SELECT_DIR', async () => {
@@ -62,7 +73,9 @@ ipcMain.handle('CREATE_STORE', async (event, key) => {
 ipcMain.handle('AUTHENTICATE', async (event, key) => {
   const stored = localStore.get('peekabooKey').key;
   // todo: encrypt given key here and compare with stored.
+  // todo: store the true key in memory, otherwise we cannot encrypt things
   if (stored === key) {
+    rawKey = key;
     return true;
   }
   return false;
@@ -123,6 +136,7 @@ const createWindow = async () => {
     show: false,
     width: WIDTH,
     minWidth: WIDTH,
+    maxWidth: 3840,
     minHeight: HEIGHT,
     maxHeight: HEIGHT,
     height: HEIGHT,
