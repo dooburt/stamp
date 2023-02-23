@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/no-unescaped-entities */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Button from 'renderer/components/Button/Button';
 import ItemDisplay from 'renderer/components/ItemDisplay/ItemDisplay';
@@ -15,6 +15,19 @@ import AddItemModal from 'renderer/components/AddItemModal/AddItemModal';
 
 function Dashboard() {
   const [addNewModalOpen, setAddNewModalOpen] = useState(true);
+  const [files, setFiles] = useState([]);
+
+  useEffect(() => {
+    const getPeekabooContents = async () => {
+      const data = await window.electron.readPeekabooContents();
+      console.log('get peekaboo data', data);
+      setFiles(data);
+    };
+
+    getPeekabooContents();
+  }, []);
+
+  console.log('files', files);
 
   const slideAnimation = {
     initial: { opacity: 0 },

@@ -7,6 +7,7 @@ const cp = require('child_process');
 const os = require('os');
 const { URL } = require('url');
 const { app } = require('electron');
+const { readdir, stat } = require('fs/promises');
 const {
   uniqueNamesGenerator,
   adjectives,
@@ -119,4 +120,18 @@ export function getComputerName() {
     default:
       return os.hostname();
   }
+}
+
+export const dirSize = async (directory: string) => {
+  const files = await readdir(directory);
+  const stats = files.map((file: any) => stat(path.join(directory, file)));
+
+  return (await Promise.all(stats)).reduce(
+    (accumulator, { size }) => accumulator + size,
+    0
+  );
+};
+
+export function getFilesInDirectory(pathToDirectory: string) {
+  return fs.readdirSync(pathToDirectory);
 }

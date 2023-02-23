@@ -21,8 +21,10 @@ import fs from 'fs';
 import zip from './zip';
 import MenuBuilder from './menu';
 import {
+  dirSize,
   getAssetsPath,
   getComputerName,
+  getFilesInDirectory,
   resolveHtmlPath,
   uniqueName,
 } from './util';
@@ -33,7 +35,7 @@ const Store = require('electron-store');
 const VERSION = '0.0.1'; // get from package eventually
 const HEIGHT = 728;
 const WIDTH = 1024;
-const EXTENSION = '.boo';
+// const EXTENSION = '.boo';
 
 let mainWindow: BrowserWindow | null = null;
 let localStore: any = null;
@@ -41,23 +43,61 @@ let rawKey: string = '';
 
 ipcMain.handle('READ_PEEKABOO_CONTENTS', async () => {
   console.log(chalk.yellow(`READ_PEEKABOO_CONTENTS`));
-  const vaultPath = `${app.getPath('userData')}\\vault\\`;
-  if (!fs.existsSync(vaultPath)) fs.mkdirSync(vaultPath);
-  fs.readdir(vaultPath, function (err, files) {
-    const booFiles = files.filter((el) => path.extname(el) === EXTENSION);
-    return booFiles;
+
+  localStore = new Store({
+    name: 'peekaboo',
+    watch: true,
+    // encryptionKey: key,
   });
+
+  const encodedData = localStore.get('contents');
+  const decodedData: any[] = [];
+
+  encodedData.forEach((boo: any) => {
+    const b = {
+      friendlyName: boo.friendlyName,
+      secureName: boo.secureName,
+      status: boo.status,
+      diskSize: boo.diskSize,
+      itemCount: boo.itemCount,
+      originalLocation: Buffer.from(boo.originalLocation, 'base64').toString(
+        'ascii'
+      ),
+      peekabooLocation: Buffer.from(boo.peekabooLocation, 'base64').toString(
+        'ascii'
+      ),
+    };
+    decodedData.push(b);
+  });
+
+  console.log('decodedData', decodedData);
+  return decodedData;
+
+  // const vaultPath = `${app.getPath('userData')}\\vault\\`;
+  // if (!fs.existsSync(vaultPath)) fs.mkdirSync(vaultPath);
+  // const files = getFilesInDirectory(vaultPath).filter(
+  //   (file) => path.extname(file) === EXTENSION
+  // );
+  // console.log('files', files);
+  // return files;
 });
 
-ipcMain.handle('ENCRYPT_DIR', async (event, pathToData) => {
-  console.log(chalk.yellow(`ENCRYPT_DIR`, event, pathToData));
+ipcMain.handle('ENCRYPT_DIR', async (event, pathToData, friendlyName) => {
+  console.log(chalk.yellow(`ENCRYPT_DIR`, event, pathToData, friendlyName));
 
   const vaultPath = `${app.getPath('userData')}\\vault\\`;
   if (!fs.existsSync(vaultPath)) fs.mkdirSync(vaultPath);
 
+  const size = await dirSize(pathToData);
   const obsfucatedName = uniqueName();
   console.log(chalk.blue(`About to encrypt directory: ${pathToData} ...`));
   console.log(chalk.blue(`Will give object name of ${obsfucatedName}`));
+
+  let itemCount = 1;
+  fs.readdir(pathToData, (err, files) => {
+    itemCount = files.length;
+  });
+  fs.statSync(pathToData);
 
   const booFile = `${vaultPath}\\${obsfucatedName}.boo`;
   const exists = fs.existsSync(booFile);
@@ -86,13 +126,13 @@ ipcMain.handle('ENCRYPT_DIR', async (event, pathToData) => {
 
   const storeContent = (await localStore.get('contents')) || [];
   storeContent.push({
-    friendlyName: 'More on this later',
+    friendlyName: friendlyName || obsfucatedName,
     secureName: obsfucatedName,
-    originalLocation: pathToData,
-    peekabooLocation: booFile,
+    originalLocation: Buffer.from(pathToData).toString('base64'),
+    peekabooLocation: Buffer.from(booFile).toString('base64'),
     status: 'locked',
-    diskSize: 12322,
-    itemCount: 1,
+    diskSize: size,
+    itemCount: itemCount,
   });
 
   localStore.set('contents', storeContent);
