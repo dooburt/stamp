@@ -20,11 +20,11 @@ export interface PeekabooItem {
   diskSize: number;
   itemCount: number;
   status: PeekabooStatus;
-  created: number;
-  modified: number;
+  created: Date;
+  modified: Date;
 }
 
-export const emptyPeekaboo = {
+export const emptyPeekaboo: PeekabooItem = {
   id: '',
   friendlyName: '',
   secureName: '',
