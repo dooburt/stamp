@@ -11,9 +11,14 @@ import files from '../../assets/icons/documents.png';
 type AddItemModalProps = {
   open: boolean;
   onClose: () => void;
+  // onComplete: () => void;
 };
 
-const AddItemModal: React.FC<AddItemModalProps> = ({ open, onClose }) => {
+const AddItemModal: React.FC<AddItemModalProps> = ({
+  open,
+  onClose,
+  // onComplete,
+}) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -51,6 +56,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ open, onClose }) => {
 
     setLoading(false);
     onClose();
+    // onComplete();
     return null;
   };
 

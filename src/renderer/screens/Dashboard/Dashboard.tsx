@@ -14,11 +14,14 @@ import AddItemModal from 'renderer/components/AddItemModal/AddItemModal';
 import ItemDisplayNonIdealState from 'renderer/components/ItemDisplay/ItemDisplayNonIdealState';
 import { isEmptyPeekaboo } from 'renderer/core/utils';
 import { emptyPeekaboo, PeekabooItem } from 'renderer/constants/app';
+// import SizedConfetti from 'renderer/components/SizedConfetti/SizedConfetti';
 
 function Dashboard() {
+  // const [_, forceUpdate] = useReducer((x) => x + 1, 0);
   const [addNewModalOpen, setAddNewModalOpen] = useState(true);
   const [files, setFiles] = useState([]);
   const [item, setItem] = useState<PeekabooItem>(emptyPeekaboo);
+  // const [confetti, setConfetti] = useState(false);
 
   useEffect(() => {
     const getPeekabooContents = async () => {
@@ -42,6 +45,11 @@ function Dashboard() {
     setAddNewModalOpen(!addNewModalOpen);
   };
 
+  // const triggerConfetti = () => {
+  //   console.log('trigginer confetti', confetti);
+  //   setConfetti(true);
+  // };
+
   const handleSelectItem = (id: string) => {
     const selected = files.find((file: PeekabooItem) => file.id === id);
     setItem(selected || emptyPeekaboo);
@@ -61,6 +69,7 @@ function Dashboard() {
   return (
     <>
       <div className="grid grid-cols-12 max-h-[1024px] h-screen w-full">
+        {/* <SizedConfetti run={confetti} onCompleteConfetti={setConfetti(false)} /> */}
         <motion.div
           initial={slideAnimation.initial}
           animate={slideAnimation.animate}
@@ -90,10 +99,10 @@ function Dashboard() {
         </motion.div>
         <div className="flex col-span-9 w-full">
           <div className="grid grid-cols-12 w-full mt-8">
-            <div className="flex col-span-5 h-screen bg-gray-100 overflow-y-scroll py-4 px-2 border border-r-2 border-slate-100">
+            <div className="flex col-span-5 h-screen bg-gray-100 scrollbar-thin scrollbar-rounded-md scrollbar-thumb-slate-500 scrollbar-track-gray-100 overflow-y-scroll py-4 px-2 border border-r-2 border-slate-100">
               <ItemList list={files} onSelectItem={handleSelectItem} />
             </div>
-            <div className="flex col-span-7 h-screen overflow-y-scroll py-4 px-4">
+            <div className="flex col-span-7 h-screen scrollbar-thin scrollbar-rounded-md scrollbar-thumb-slate-500 scrollbar-track-gray-100 overflow-y-scroll py-4 px-4">
               {!isEmptyPeekaboo(item) ? (
                 <ItemDisplay item={item} />
               ) : (
@@ -104,7 +113,11 @@ function Dashboard() {
         </div>
       </div>
 
-      <AddItemModal open={addNewModalOpen} onClose={handleAddNewModalClose} />
+      <AddItemModal
+        open={addNewModalOpen}
+        onClose={handleAddNewModalClose}
+        // onComplete={triggerConfetti}
+      />
     </>
   );
 }

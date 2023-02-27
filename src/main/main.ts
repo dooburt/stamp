@@ -70,6 +70,8 @@ ipcMain.handle('READ_PEEKABOO_CONTENTS', async () => {
       peekabooLocation: Buffer.from(boo.peekabooLocation, 'base64').toString(
         'ascii'
       ),
+      created: boo.created,
+      modified: boo.modified,
     };
     decodedData.push(b);
   });
@@ -139,6 +141,8 @@ ipcMain.handle('ENCRYPT_DIR', async (event, pathToData) => {
     status: 'locked',
     diskSize: size,
     itemCount: itemCount,
+    created: dayjs().toDate(),
+    modified: dayjs().toDate(),
   });
 
   localStore.set('contents', storeContent);

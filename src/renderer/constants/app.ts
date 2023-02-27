@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 /* eslint-disable no-shadow */
 export const HEIGHT = 728;
 export const WIDTH = 1024;
@@ -18,6 +20,8 @@ export interface PeekabooItem {
   diskSize: number;
   itemCount: number;
   status: PeekabooStatus;
+  created: number;
+  modified: number;
 }
 
 export const emptyPeekaboo = {
@@ -30,4 +34,6 @@ export const emptyPeekaboo = {
   diskSize: 0,
   itemCount: 0,
   status: PeekabooStatus.LOCKED,
+  created: dayjs().toDate(),
+  modified: dayjs().toDate(),
 };

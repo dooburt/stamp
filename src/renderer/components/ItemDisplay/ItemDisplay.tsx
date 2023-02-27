@@ -50,7 +50,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({ item, initials, color }) => {
           </div>
         </div>
         <div className="flex-grow pt-2 pl-4">
-          <span className="text-4xl leading-tight text-gray-800 block">
+          <span className="text-4xl leading-tight text-gray-800 block truncate">
             {item.friendlyName}
           </span>
         </div>
