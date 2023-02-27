@@ -17,15 +17,17 @@ import { app, BrowserWindow, shell, ipcMain, protocol, dialog } from 'electron';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
 import fs from 'fs';
+import { randomUUID } from 'crypto';
 
 import zip from './zip';
 import MenuBuilder from './menu';
+import availableColors from '../constants/colors';
 import {
-  dirSize,
+  delay,
   getAssetsPath,
   getComputerName,
-  getFilesInDirectory,
   resolveHtmlPath,
+  shuffle,
   uniqueName,
 } from './util';
 import encryptionPipe from './encryptor';
@@ -55,6 +57,8 @@ ipcMain.handle('READ_PEEKABOO_CONTENTS', async () => {
 
   encodedData.forEach((boo: any) => {
     const b = {
+      id: boo.id,
+      color: boo.color,
       friendlyName: boo.friendlyName,
       secureName: boo.secureName,
       status: boo.status,
@@ -82,13 +86,13 @@ ipcMain.handle('READ_PEEKABOO_CONTENTS', async () => {
   // return files;
 });
 
-ipcMain.handle('ENCRYPT_DIR', async (event, pathToData, friendlyName) => {
-  console.log(chalk.yellow(`ENCRYPT_DIR`, event, pathToData, friendlyName));
+ipcMain.handle('ENCRYPT_DIR', async (event, pathToData) => {
+  console.log(chalk.yellow(`ENCRYPT_DIR`, event, pathToData));
 
   const vaultPath = `${app.getPath('userData')}\\vault\\`;
   if (!fs.existsSync(vaultPath)) fs.mkdirSync(vaultPath);
 
-  const size = await dirSize(pathToData);
+  // const size = await dirSize(pathToData);
   const obsfucatedName = uniqueName();
   console.log(chalk.blue(`About to encrypt directory: ${pathToData} ...`));
   console.log(chalk.blue(`Will give object name of ${obsfucatedName}`));
@@ -106,7 +110,7 @@ ipcMain.handle('ENCRYPT_DIR', async (event, pathToData, friendlyName) => {
   console.log('ENCRYPT_DIR', 'Does file exist?', exists);
   if (exists) return false;
 
-  const archive = await zip(pathToData, vaultPath, obsfucatedName);
+  const { archive, size } = await zip(pathToData, vaultPath, obsfucatedName);
   console.log(chalk.green(`Archive created successfully`, archive));
 
   const encryptedContent = await encryptionPipe(archive, rawKey, booFile);
@@ -126,7 +130,9 @@ ipcMain.handle('ENCRYPT_DIR', async (event, pathToData, friendlyName) => {
 
   const storeContent = (await localStore.get('contents')) || [];
   storeContent.push({
-    friendlyName: friendlyName || obsfucatedName,
+    id: randomUUID(),
+    color: shuffle(availableColors)[2],
+    friendlyName: obsfucatedName,
     secureName: obsfucatedName,
     originalLocation: Buffer.from(pathToData).toString('base64'),
     peekabooLocation: Buffer.from(booFile).toString('base64'),
@@ -136,6 +142,8 @@ ipcMain.handle('ENCRYPT_DIR', async (event, pathToData, friendlyName) => {
   });
 
   localStore.set('contents', storeContent);
+
+  await delay(1000);
 
   return true;
 });

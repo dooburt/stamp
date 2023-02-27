@@ -1,4 +1,6 @@
-import colorMap from '../constants/colorMap';
+/* eslint-disable no-promise-executor-return */
+import { PeekabooItem } from 'renderer/constants/app';
+import { colorMap } from '../constants/colorMap';
 
 /* eslint-disable no-plusplus */
 export const mergeClasses = (
@@ -13,7 +15,12 @@ export const mergeClasses = (
 };
 
 export const isEmptyObject = (obj: any) => {
-  return Object.keys(obj).length > 0;
+  return (
+    obj && // 👈 null and undefined check
+    Object.keys(obj).length === 0 &&
+    Object.getPrototypeOf(obj) === Object.prototype
+  );
+  // return Object.keys(obj).length > 0;
 };
 
 /**
@@ -51,4 +58,11 @@ export const initialsGenerator = (name: string) => {
   return `${split[0].charAt(0).toUpperCase()}${split[1]
     .charAt(0)
     .toUpperCase()}`;
+};
+
+export const isEmptyPeekaboo = (item: PeekabooItem) => {
+  if (!item.peekabooLocation) return true;
+  if (!item.originalLocation) return true;
+  if (!item.secureName) return true;
+  return false;
 };

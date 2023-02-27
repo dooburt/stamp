@@ -1,3 +1,4 @@
+/* eslint-disable no-promise-executor-return */
 /* eslint-disable no-case-declarations */
 /* eslint import/prefer-default-export: off */
 const crypto = require('crypto');
@@ -135,3 +136,21 @@ export const dirSize = async (directory: string) => {
 export function getFilesInDirectory(pathToDirectory: string) {
   return fs.readdirSync(pathToDirectory);
 }
+
+/**
+ * Shuffle the given data before picking.
+ * The fixed index on usage is intentional and can be any fixed number within range
+ * Usage: `shuffle(addresses)[2]`
+ * @param {Array} array of data to shuffle
+ * @returns {Array} a reshuffled array
+ */
+export const shuffle = (arr: any) => {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
+
+export const delay = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));

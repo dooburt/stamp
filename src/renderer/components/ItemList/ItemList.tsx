@@ -1,31 +1,41 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/function-component-definition */
+import React from 'react';
+import { PeekabooItem } from 'renderer/constants/app';
 import Item from './Item';
 
-function ItemList() {
+type ItemListProps = {
+  list: Array<PeekabooItem>;
+  onSelectItem: (id: string) => void;
+};
+
+const ItemList: React.FC<ItemListProps> = ({ list, onSelectItem }) => {
+  const renderNonIdealState = () => {
+    return (
+      <div className="flex w-full h-full justify-center items-center">
+        <p>So empty</p>
+      </div>
+    );
+  };
+
   return (
     <ul className="w-full">
-      <Item title="Sims Stuff" path="[..]/The Sims 4/Mods" />
-      <Item
-        title="Bank Details"
-        path="[..]/Documents/Bank Details.docx"
-        color="lime"
-      />
-      <Item
-        title="Image Stash"
-        path="[..]/Documents/Bank Details.docx"
-        color="indigo"
-      />
-      <Item
-        title="Photos"
-        path="[..]/Documents/Bank Details.docx"
-        color="emerald"
-      />
-      <Item
-        title="Photos Of Dogs"
-        path="[..]/Documents/Bank Details.docx"
-        color="rose"
-      />
+      {list.length === 0
+        ? renderNonIdealState()
+        : list.map((item: PeekabooItem) => {
+            return (
+              <Item
+                key={item.id}
+                id={item.id}
+                title={item.friendlyName}
+                path={item.originalLocation}
+                color={item.color}
+                onSelectItem={onSelectItem}
+              />
+            );
+          })}
     </ul>
   );
-}
+};
 
 export default ItemList;

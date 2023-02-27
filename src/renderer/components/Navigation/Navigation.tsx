@@ -5,7 +5,6 @@ import Avatar from '../Avatar/Avatar';
 function Navigation() {
   const [user, setUser] = useState({
     name: '',
-    email: '',
   });
 
   useEffect(() => {
@@ -24,11 +23,10 @@ function Navigation() {
         <div>
           <Avatar classes={['w-12', 'h-12']} />
         </div>
-        <div className="pl-4 pt-3">
+        <div className="pl-4 pt-5">
           <span className="text-white block text-lg leading-3">
             {user.name}
           </span>
-          <span className="block text-sm text-slate-400">{user.email}</span>
         </div>
       </div>
       <div className="py-4">

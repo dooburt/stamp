@@ -77,7 +77,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ open, onClose }) => {
               be retrievable via Peekaboo and your master password.
             </p>
 
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <label
                 htmlFor="friendlyName"
                 className="block text-sm font-medium text-gray-700"
@@ -93,7 +93,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ open, onClose }) => {
                   placeholder="My secure files"
                 />
               </div>
-            </div>
+            </div> */}
 
             <button
               type="button"

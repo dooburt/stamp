@@ -51,4 +51,17 @@ const colorMap = [
   },
 ];
 
-export default colorMap;
+const availableColors = [
+  'lime',
+  'rose',
+  'violet',
+  'blue',
+  'teal',
+  'orange',
+  'red',
+  'emerald',
+  'indigo',
+  'yellow',
+];
+
+export { colorMap, availableColors };

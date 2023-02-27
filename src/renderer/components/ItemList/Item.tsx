@@ -5,12 +5,20 @@ import { motion } from 'framer-motion';
 import { initialsGenerator, pickColor } from 'renderer/core/utils';
 
 type ItemProps = {
+  id: string;
   title: string;
   path: string;
   color?: string;
+  onSelectItem: (id: string) => void;
 };
 
-const Item: React.FC<ItemProps> = ({ title, path, color }) => {
+const Item: React.FC<ItemProps> = ({
+  id,
+  title,
+  path,
+  color,
+  onSelectItem,
+}) => {
   const animation = {
     initial: { opacity: 0, transform: 'translateX(-40px)' },
     animate: { opacity: 1, transform: 'translateX(0px)' },
@@ -25,7 +33,8 @@ const Item: React.FC<ItemProps> = ({ title, path, color }) => {
       initial={animation.initial}
       animate={animation.animate}
       transition={animation.transition}
-      className="my-1 w-full hover:bg-slate-200 rounded-md"
+      className="my-1 w-full hover:bg-slate-200 rounded-md overflow-hidden"
+      onClick={() => onSelectItem(id)}
     >
       <div className="flex py-1">
         <div className="">

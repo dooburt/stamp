@@ -2,25 +2,20 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
 import { motion } from 'framer-motion';
-import { pickColor } from 'renderer/core/utils';
+import { initialsGenerator, pickColor } from 'renderer/core/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { PeekabooItem } from 'renderer/constants/app';
 import { faLockOpen, faFolder } from '@fortawesome/free-solid-svg-icons';
 import Button from '../Button/Button';
 import Tooltip from '../Tooltip/Tooltip';
 
 type ItemDisplayProps = {
-  title: string;
+  item: PeekabooItem;
   initials?: string;
-  path: string;
   color?: string;
 };
 
-const ItemDisplay: React.FC<ItemDisplayProps> = ({
-  title,
-  initials,
-  path,
-  color,
-}) => {
+const ItemDisplay: React.FC<ItemDisplayProps> = ({ item, initials, color }) => {
   const animation = {
     initial: { opacity: 0, transform: 'translateX(-40px)' },
     animate: { opacity: 1, transform: 'translateX(0px)' },
@@ -36,7 +31,8 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
     );
   };
 
-  const selectedColor = pickColor(color || 'yellow');
+  const selectedColor = pickColor(item.color || color || 'yellow');
+  const generatedInitials = initials || initialsGenerator(item.friendlyName);
 
   return (
     <motion.div
@@ -50,12 +46,12 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
           <div
             className={`flex text-2xl w-14 h-14 ${selectedColor.background} ${selectedColor.text} font-bold p-2 justify-center items-center rounded-lg`}
           >
-            {initials}
+            {generatedInitials}
           </div>
         </div>
         <div className="flex-grow pt-2 pl-4">
           <span className="text-4xl leading-tight text-gray-800 block">
-            {title}
+            {item.friendlyName}
           </span>
         </div>
       </div>
@@ -68,7 +64,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
           <div className="block text-sm text-gray-900">
             <Tooltip text="This is your label for the encrypted items">
               <span className="block text-sm font-normal dark:bg-gray-800 truncate">
-                Sims Stuff
+                {item.friendlyName}
               </span>
             </Tooltip>
           </div>
@@ -80,7 +76,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
           <div className="block text-sm text-gray-900">
             <Tooltip text="Peekaboo stores all the items for this encryption in a 'boo' file named this.">
               <span className="block text-sm font-normal dark:bg-gray-800 truncate">
-                orchid-gorilla-leaf
+                {item.secureName}
               </span>
             </Tooltip>
           </div>
@@ -90,9 +86,9 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
             Original location
           </span>
           <div className="block text-sm text-gray-900">
-            <Tooltip text="C:/Users/dooburt/Documents/Electronic Arts/The Sims 4/Mods">
+            <Tooltip text={item.originalLocation}>
               <span className="block text-sm font-normal dark:bg-gray-800 truncate">
-                C:/Users/dooburt/Documents/Electronic Arts/The Sims 4/Mods
+                {item.originalLocation}
               </span>
             </Tooltip>
           </div>
@@ -102,9 +98,9 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
             Peekaboo location
           </span>
           <div className="block text-sm text-gray-900">
-            <Tooltip text="C:/Users/dooburt/AppData/Roaming/Peekaboo/orchid-gorilla-leaf.boo">
+            <Tooltip text={item.peekabooLocation}>
               <span className="block text-sm font-normal dark:bg-gray-800 truncate">
-                C:/Users/dooburt/AppData/Roaming/Peekaboo/orchid-gorilla-leaf.boo
+                {item.peekabooLocation}
               </span>
             </Tooltip>
           </div>
@@ -115,7 +111,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
           </span>
           <div className="block text-sm text-gray-900">
             <span className="block text-sm font-normal dark:bg-gray-800 truncate">
-              Locked &amp; secure
+              {item.status}
             </span>
           </div>
         </div>
@@ -125,7 +121,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
           </span>
           <div className="block text-sm text-gray-900">
             <span className="block text-sm font-normal dark:bg-gray-800 truncate">
-              12.4Gb
+              {item.diskSize}
             </span>
           </div>
         </div>
@@ -135,7 +131,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
           </span>
           <div className="block text-sm text-gray-900">
             <span className="block text-sm font-normal dark:bg-gray-800 truncate">
-              1,058
+              {item.itemCount}
             </span>
           </div>
         </div>

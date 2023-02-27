@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable no-console */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/no-unescaped-entities */
@@ -10,12 +11,14 @@ import Navigation from 'renderer/components/Navigation/Navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import AddItemModal from 'renderer/components/AddItemModal/AddItemModal';
-
-// todo: read the vault contents and return
+import ItemDisplayNonIdealState from 'renderer/components/ItemDisplay/ItemDisplayNonIdealState';
+import { isEmptyPeekaboo } from 'renderer/core/utils';
+import { emptyPeekaboo, PeekabooItem } from 'renderer/constants/app';
 
 function Dashboard() {
   const [addNewModalOpen, setAddNewModalOpen] = useState(true);
   const [files, setFiles] = useState([]);
+  const [item, setItem] = useState<PeekabooItem>(emptyPeekaboo);
 
   useEffect(() => {
     const getPeekabooContents = async () => {
@@ -39,6 +42,11 @@ function Dashboard() {
     setAddNewModalOpen(!addNewModalOpen);
   };
 
+  const handleSelectItem = (id: string) => {
+    const selected = files.find((file: PeekabooItem) => file.id === id);
+    setItem(selected || emptyPeekaboo);
+  };
+
   const renderLabel = () => {
     return (
       <>
@@ -47,6 +55,8 @@ function Dashboard() {
       </>
     );
   };
+
+  console.log('item', item);
 
   return (
     <>
@@ -81,14 +91,14 @@ function Dashboard() {
         <div className="flex col-span-9 w-full">
           <div className="grid grid-cols-12 w-full mt-8">
             <div className="flex col-span-5 h-screen bg-gray-100 overflow-y-scroll py-4 px-2 border border-r-2 border-slate-100">
-              <ItemList />
+              <ItemList list={files} onSelectItem={handleSelectItem} />
             </div>
             <div className="flex col-span-7 h-screen overflow-y-scroll py-4 px-4">
-              <ItemDisplay
-                title="Sims Stuff"
-                initials="SS"
-                path="[..]/The Sims 4/Mods"
-              />
+              {!isEmptyPeekaboo(item) ? (
+                <ItemDisplay item={item} />
+              ) : (
+                <ItemDisplayNonIdealState />
+              )}
             </div>
           </div>
         </div>
