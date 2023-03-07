@@ -29,17 +29,17 @@ const Item: React.FC<ItemProps> = ({
 
   const selectedColor = pickColor(color || 'yellow');
   const generatedInitials = initialsGenerator(title);
-  const ifSelected = selected ? `bg-slate-100` : null;
+  const ifSelected = selected ? `bg-slate-200` : null;
 
   return (
     <motion.li
       initial={animation.initial}
       animate={animation.animate}
       transition={animation.transition}
-      className={`my-1 w-full hover:bg-slate-200 rounded-md overflow-hidden ${ifSelected}`}
+      className={`w-full pr-4 hover:bg-slate-200 rounded-md overflow-hidden ${ifSelected}`}
       onClick={() => onSelectItem(id)}
     >
-      <div className="flex py-1">
+      <div className="flex overflow-hidden">
         <div className="">
           <div
             className={`flex w-10 h-10 ${selectedColor.background} ${selectedColor.text} font-bold p-2 justify-center items-center m-2 rounded-lg`}

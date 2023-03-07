@@ -1,6 +1,6 @@
 /* eslint-disable react/function-component-definition */
 /* eslint-disable no-unused-vars */
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   humanFileSize,
@@ -9,9 +9,10 @@ import {
 } from 'renderer/core/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PeekabooItem } from 'renderer/constants/app';
-import { faLockOpen, faFolder } from '@fortawesome/free-solid-svg-icons';
+import { faLockOpen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Button from '../Button/Button';
 import Tooltip from '../Tooltip/Tooltip';
+import ConfirmRemovalModal from '../ConfirmRemovalModal/ConfirmRemovalModal';
 
 type ItemDisplayProps = {
   item: PeekabooItem;
@@ -20,10 +21,16 @@ type ItemDisplayProps = {
 };
 
 const ItemDisplay: React.FC<ItemDisplayProps> = ({ item, initials, color }) => {
+  const [confirmRemovalModalOpen, setConfirmRemovalModalOpen] = useState(true);
+
   const animation = {
     initial: { opacity: 0, transform: 'translateX(-40px)' },
     animate: { opacity: 1, transform: 'translateX(0px)' },
     transition: { ease: 'easeOut', duration: 1.1 },
+  };
+
+  const handleConfirmRemovalModalClose = () => {
+    setConfirmRemovalModalOpen(!confirmRemovalModalOpen);
   };
 
   const renderLabel = () => {
@@ -35,8 +42,17 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({ item, initials, color }) => {
     );
   };
 
+  const renderDeleteLabel = () => {
+    return (
+      <>
+        <FontAwesomeIcon icon={faTrash} className="text-white" />{' '}
+        <span className="text-white pl-1">Decrypt &amp; remove</span>
+      </>
+    );
+  };
+
   const selectedColor = pickColor(item.color || color || 'yellow');
-  const generatedInitials = initials || initialsGenerator(item.friendlyName);
+  const generatedInitials = initialsGenerator(item.friendlyName) || initials;
 
   return (
     <motion.div
@@ -125,7 +141,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({ item, initials, color }) => {
           </span>
           <div className="block text-sm text-gray-900">
             <span className="block text-sm font-normal dark:bg-gray-800 truncate">
-              {humanFileSize(item.diskSize)}
+              {humanFileSize(item.diskSize, true)}
             </span>
           </div>
         </div>
@@ -140,7 +156,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({ item, initials, color }) => {
           </div>
         </div>
 
-        <div className="mb-8 mt-8">
+        <div className="mb-2 mt-8">
           <Button
             label={renderLabel()}
             classes={[
@@ -154,6 +170,20 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({ item, initials, color }) => {
             handleClick={() => console.log('cobblers')}
           />
         </div>
+        <div className="mb-8 mt-2">
+          <Button
+            label={renderDeleteLabel()}
+            classes={[
+              'h-12',
+              'w-full',
+              'bg-red-500',
+              'hover:bg-red-700',
+              'disabled:bg-gray-200',
+              'disabled:text-gray-500',
+            ]}
+            handleClick={() => setConfirmRemovalModalOpen(true)}
+          />
+        </div>
 
         <div className="justify-center text-center pt-4">
           <span className="block text-xs text-slate-400">
@@ -164,6 +194,12 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({ item, initials, color }) => {
           </span>
         </div>
       </div>
+
+      <ConfirmRemovalModal
+        open={confirmRemovalModalOpen}
+        onClose={handleConfirmRemovalModalClose}
+        // onComplete={triggerConfetti}
+      />
     </motion.div>
   );
 };

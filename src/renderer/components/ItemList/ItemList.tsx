@@ -6,14 +6,14 @@ import Item from './Item';
 
 type ItemListProps = {
   list: Array<PeekabooItem>;
-  selectedIndex?: number;
+  selectedItemId?: string | null;
   onSelectItem: (id: string) => void;
 };
 
 const ItemList: React.FC<ItemListProps> = ({
   list,
   onSelectItem,
-  selectedIndex,
+  selectedItemId,
 }) => {
   const renderNonIdealState = () => {
     return (
@@ -36,7 +36,7 @@ const ItemList: React.FC<ItemListProps> = ({
                 path={item.originalLocation}
                 color={item.color}
                 onSelectItem={onSelectItem}
-                selected={index === selectedIndex}
+                selected={item.id === selectedItemId}
               />
             );
           })}
@@ -45,7 +45,7 @@ const ItemList: React.FC<ItemListProps> = ({
 };
 
 ItemList.defaultProps = {
-  selectedIndex: 0,
+  selectedItemId: null,
 };
 
 export default ItemList;
