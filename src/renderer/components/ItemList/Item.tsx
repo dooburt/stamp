@@ -10,6 +10,7 @@ type ItemProps = {
   path: string;
   color?: string;
   onSelectItem: (id: string) => void;
+  selected: boolean;
 };
 
 const Item: React.FC<ItemProps> = ({
@@ -18,6 +19,7 @@ const Item: React.FC<ItemProps> = ({
   path,
   color,
   onSelectItem,
+  selected,
 }) => {
   const animation = {
     initial: { opacity: 0, transform: 'translateX(-40px)' },
@@ -27,13 +29,14 @@ const Item: React.FC<ItemProps> = ({
 
   const selectedColor = pickColor(color || 'yellow');
   const generatedInitials = initialsGenerator(title);
+  const ifSelected = selected ? `bg-slate-100` : null;
 
   return (
     <motion.li
       initial={animation.initial}
       animate={animation.animate}
       transition={animation.transition}
-      className="my-1 w-full hover:bg-slate-200 rounded-md overflow-hidden"
+      className={`my-1 w-full hover:bg-slate-200 rounded-md overflow-hidden ${ifSelected}`}
       onClick={() => onSelectItem(id)}
     >
       <div className="flex py-1">

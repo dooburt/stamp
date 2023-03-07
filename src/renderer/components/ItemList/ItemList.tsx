@@ -6,10 +6,15 @@ import Item from './Item';
 
 type ItemListProps = {
   list: Array<PeekabooItem>;
+  selectedIndex?: number;
   onSelectItem: (id: string) => void;
 };
 
-const ItemList: React.FC<ItemListProps> = ({ list, onSelectItem }) => {
+const ItemList: React.FC<ItemListProps> = ({
+  list,
+  onSelectItem,
+  selectedIndex,
+}) => {
   const renderNonIdealState = () => {
     return (
       <div className="flex w-full h-full justify-center items-center">
@@ -22,7 +27,7 @@ const ItemList: React.FC<ItemListProps> = ({ list, onSelectItem }) => {
     <ul className="w-full">
       {list.length === 0
         ? renderNonIdealState()
-        : list.map((item: PeekabooItem) => {
+        : list.map((item: PeekabooItem, index: number) => {
             return (
               <Item
                 key={item.id}
@@ -31,11 +36,16 @@ const ItemList: React.FC<ItemListProps> = ({ list, onSelectItem }) => {
                 path={item.originalLocation}
                 color={item.color}
                 onSelectItem={onSelectItem}
+                selected={index === selectedIndex}
               />
             );
           })}
     </ul>
   );
+};
+
+ItemList.defaultProps = {
+  selectedIndex: 0,
 };
 
 export default ItemList;

@@ -28,6 +28,10 @@ function Dashboard() {
       const data = await window.electron.readPeekabooContents();
       console.log('get peekaboo data', data);
       setFiles(data);
+
+      if (data && data.length > 0) {
+        setItem(data[0]);
+      }
     };
 
     getPeekabooContents();
@@ -99,7 +103,7 @@ function Dashboard() {
         </motion.div>
         <div className="flex col-span-9 w-full">
           <div className="grid grid-cols-12 w-full mt-8">
-            <div className="flex col-span-5 h-screen bg-gray-100 scrollbar-thin scrollbar-rounded-md scrollbar-thumb-slate-500 scrollbar-track-gray-100 overflow-y-scroll py-4 px-2 border border-r-2 border-slate-100">
+            <div className="flex col-span-5 h-screen bg-gray-100 scrollbar-thin scrollbar-rounded-md scrollbar-thumb-slate-500 scrollbar-track-gray-100 overflow-y-scroll px-2 border border-r-2 border-slate-100">
               <ItemList list={files} onSelectItem={handleSelectItem} />
             </div>
             <div className="flex col-span-7 h-screen scrollbar-thin scrollbar-rounded-md scrollbar-thumb-slate-500 scrollbar-track-gray-100 overflow-y-scroll py-4 px-4">

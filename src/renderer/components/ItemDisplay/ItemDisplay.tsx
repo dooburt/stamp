@@ -2,7 +2,11 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
 import { motion } from 'framer-motion';
-import { initialsGenerator, pickColor } from 'renderer/core/utils';
+import {
+  humanFileSize,
+  initialsGenerator,
+  pickColor,
+} from 'renderer/core/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PeekabooItem } from 'renderer/constants/app';
 import { faLockOpen, faFolder } from '@fortawesome/free-solid-svg-icons';
@@ -121,7 +125,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({ item, initials, color }) => {
           </span>
           <div className="block text-sm text-gray-900">
             <span className="block text-sm font-normal dark:bg-gray-800 truncate">
-              {item.diskSize}
+              {humanFileSize(item.diskSize)}
             </span>
           </div>
         </div>
