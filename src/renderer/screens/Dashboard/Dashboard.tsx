@@ -19,6 +19,7 @@ import {
   emptyPeekaboo,
   PeekabooItem,
 } from 'renderer/constants/app';
+import ConfirmRemovalModal from 'renderer/components/ConfirmRemovalModal/ConfirmRemovalModal';
 // import SizedConfetti from 'renderer/components/SizedConfetti/SizedConfetti';
 
 function Dashboard() {
@@ -30,6 +31,7 @@ function Dashboard() {
 
   // const [_, forceUpdate] = useReducer((x) => x + 1, 0);
   const [addNewModalOpen, setAddNewModalOpen] = useState(true);
+  const [confirmRemovalModalOpen, setConfirmRemovalModalOpen] = useState(true);
   const [files, setFiles] = useState([]);
   const [item, setItem] = useState<PeekabooItem>(emptyPeekaboo);
   // const [confetti, setConfetti] = useState(false);
@@ -58,6 +60,10 @@ function Dashboard() {
 
   const handleAddNewModalClose = () => {
     setAddNewModalOpen(!addNewModalOpen);
+  };
+
+  const handleConfirmRemovalModalClose = () => {
+    setConfirmRemovalModalOpen(!confirmRemovalModalOpen);
   };
 
   // const triggerConfetti = () => {
@@ -129,7 +135,10 @@ function Dashboard() {
               style={{ height: `${size.height}px` }}
             >
               {!isEmptyPeekaboo(item) ? (
-                <ItemDisplay item={item} />
+                <ItemDisplay
+                  item={item}
+                  onConfirmRemove={handleConfirmRemovalModalClose}
+                />
               ) : (
                 <ItemDisplayNonIdealState />
               )}
@@ -142,6 +151,10 @@ function Dashboard() {
         open={addNewModalOpen}
         onClose={handleAddNewModalClose}
         // onComplete={triggerConfetti}
+      />
+      <ConfirmRemovalModal
+        open={confirmRemovalModalOpen}
+        onClose={handleConfirmRemovalModalClose}
       />
     </>
   );

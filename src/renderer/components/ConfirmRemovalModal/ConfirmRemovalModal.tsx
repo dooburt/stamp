@@ -99,10 +99,11 @@ const ConfirmRemovalModal: React.FC<ConfirmRemovalModalProps> = ({
               classes={[
                 'h-12',
                 'w-full',
-                'bg-indigo-500',
+                'bg-slate-400',
                 'hover:bg-indigo-700',
                 'disabled:bg-gray-200',
                 'disabled:text-gray-500',
+                'mb-2',
               ]}
               handleClick={() => console.log('cobblers')}
             />
@@ -111,7 +112,7 @@ const ConfirmRemovalModal: React.FC<ConfirmRemovalModalProps> = ({
               classes={[
                 'h-12',
                 'w-full',
-                'bg-indigo-500',
+                'bg-emerald-500',
                 'hover:bg-indigo-700',
                 'disabled:bg-gray-200',
                 'disabled:text-gray-500',

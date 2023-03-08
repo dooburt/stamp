@@ -12,26 +12,25 @@ import { PeekabooItem } from 'renderer/constants/app';
 import { faLockOpen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Button from '../Button/Button';
 import Tooltip from '../Tooltip/Tooltip';
-import ConfirmRemovalModal from '../ConfirmRemovalModal/ConfirmRemovalModal';
 import StatusPill from '../StatusPill/StatusPill';
 
 type ItemDisplayProps = {
   item: PeekabooItem;
   initials?: string;
   color?: string;
+  onConfirmRemove?: () => void;
 };
 
-const ItemDisplay: React.FC<ItemDisplayProps> = ({ item, initials, color }) => {
-  const [confirmRemovalModalOpen, setConfirmRemovalModalOpen] = useState(true);
-
+const ItemDisplay: React.FC<ItemDisplayProps> = ({
+  item,
+  initials,
+  color,
+  onConfirmRemove,
+}) => {
   const animation = {
     initial: { opacity: 0, transform: 'translateX(-40px)' },
     animate: { opacity: 1, transform: 'translateX(0px)' },
     transition: { ease: 'easeOut', duration: 1.1 },
-  };
-
-  const handleConfirmRemovalModalClose = () => {
-    setConfirmRemovalModalOpen(!confirmRemovalModalOpen);
   };
 
   const renderLabel = () => {
@@ -182,7 +181,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({ item, initials, color }) => {
               'disabled:bg-gray-200',
               'disabled:text-gray-500',
             ]}
-            handleClick={() => setConfirmRemovalModalOpen(true)}
+            handleClick={onConfirmRemove}
           />
         </div>
 
@@ -195,12 +194,6 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({ item, initials, color }) => {
           </span>
         </div>
       </div>
-
-      <ConfirmRemovalModal
-        open={confirmRemovalModalOpen}
-        onClose={handleConfirmRemovalModalClose}
-        // onComplete={triggerConfetti}
-      />
     </motion.div>
   );
 };
@@ -208,6 +201,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({ item, initials, color }) => {
 ItemDisplay.defaultProps = {
   initials: '??',
   color: 'yellow',
+  onConfirmRemove: () => {},
 };
 
 export default ItemDisplay;
