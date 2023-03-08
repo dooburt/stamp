@@ -31,6 +31,7 @@ import {
   uniqueName,
 } from './util';
 import encryptionPipe from './encryptor';
+import { PeekabooItem } from 'renderer/constants/app';
 
 const Store = require('electron-store');
 
@@ -88,6 +89,37 @@ ipcMain.handle('READ_PEEKABOO_CONTENTS', async () => {
   // return files;
 });
 
+ipcMain.handle('UNLINK', async (event, idToUnlink) => {
+  console.log(chalk.yellow(`UNLINK`, event, idToUnlink));
+
+  // remove from contents in store where id matches
+  // rewrite contents
+  // decrypt item and unpack in original location
+});
+
+ipcMain.handle('DECRYPT', async (event, idToDecrypt) => {
+  console.log(chalk.yellow(`DECRYPT`, event, idToDecrypt));
+
+  localStore = new Store({
+    name: 'peekaboo',
+    watch: true,
+    // encryptionKey: key,
+  });
+
+  const storeContent = (await localStore.get('contents')) || [];
+  const found = storeContent.find(
+    (item: PeekabooItem) => item.id === idToDecrypt
+  );
+  if (!found) {
+    console.log(chalk.red(`DECRYPT`, `Can't find that item in store`));
+    return null;
+  }
+
+  // const booFile = found.peekabooLocation;
+  // const original = found.originalLocation;
+  return null;
+});
+
 ipcMain.handle('ENCRYPT_DIR', async (event, pathToData) => {
   console.log(chalk.yellow(`ENCRYPT_DIR`, event, pathToData));
 
@@ -133,6 +165,7 @@ ipcMain.handle('ENCRYPT_DIR', async (event, pathToData) => {
   const storeContent = (await localStore.get('contents')) || [];
   storeContent.push({
     id: randomUUID(),
+    iv: encryptedContent.iv,
     color: shuffle(availableColors)[2],
     friendlyName: obsfucatedName,
     secureName: obsfucatedName,
@@ -145,9 +178,17 @@ ipcMain.handle('ENCRYPT_DIR', async (event, pathToData) => {
     modified: dayjs().toDate(),
   });
 
+  console.log(
+    chalk.green(`Successfully encrypted: ${booFile} and set into local store`)
+  );
+
   localStore.set('contents', storeContent);
 
   await delay(1000);
+
+  fs.unlinkSync(archive);
+
+  console.log(chalk.green(`Removed archive: ${archive}`));
 
   return true;
 });

@@ -26,6 +26,7 @@ function Dashboard() {
   const size: Size = useWindowSize();
 
   const itemListHeight = (size.height || 0) - APPBAR_HEIGHT;
+  const displayPaneHeight = itemListHeight + 40;
 
   console.log('list height', itemListHeight);
 
@@ -132,7 +133,9 @@ function Dashboard() {
             </div>
             <div
               className="flex col-span-7 scrollbar-thin scrollbar-rounded-md scrollbar-thumb-slate-500 scrollbar-track-gray-100 overflow-y-scroll py-4 px-4"
-              style={{ height: `${size.height}px` }}
+              style={{
+                height: `${itemListHeight}px`,
+              }}
             >
               {!isEmptyPeekaboo(item) ? (
                 <ItemDisplay

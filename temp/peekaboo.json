@@ -1,6 +1,26 @@
 {
   "peekabooKey": {
-    "key": "df23423r23rv",
-    "date": "2023-02-14T18:15:41.547Z"
-  }
+    "key": "adenoid-biscuit",
+    "date": "2023-02-22T17:04:13.509Z"
+  },
+  "user": {
+    "name": "STICKLEBISCUIT",
+    "email": ""
+  },
+  "contents": [
+    {
+      "id": "c22c4c55-5adc-40bb-a443-7df0ab5d42c1",
+      "iv": "e4d7f333a629dff7",
+      "color": "lime",
+      "friendlyName": "subsequent-moccasin",
+      "secureName": "subsequent-moccasin",
+      "originalLocation": "QzpcVXNlcnNcZG9vYnVydFxEb2N1bWVudHNcUG9zdGVycw==",
+      "peekabooLocation": "QzpcVXNlcnNcZG9vYnVydFxBcHBEYXRhXFJvYW1pbmdcUGVla2Fib29cdmF1bHRcXHN1YnNlcXVlbnQtbW9jY2FzaW4uYm9v",
+      "status": "locked",
+      "diskSize": 19404865,
+      "itemCount": 22,
+      "created": "2023-03-08T14:05:42.210Z",
+      "modified": "2023-03-08T14:05:42.210Z"
+    }
+  ]
 }

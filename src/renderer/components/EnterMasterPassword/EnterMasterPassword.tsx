@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable no-console */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
@@ -17,10 +17,6 @@ function EnterMasterPassword() {
   const [loading, setLoading] = useState(false);
   const [bad, setBad] = useState(false);
 
-  const handleChange = (event: any) => {
-    setPassword(event.target.value);
-  };
-
   const handleSubmit = async () => {
     if (!password) return null;
     setLoading(true);
@@ -31,6 +27,23 @@ function EnterMasterPassword() {
     } else {
       return navigate('/dashboard');
     }
+  };
+
+  useEffect(() => {
+    const handleEsc = (event: any) => {
+      if (event.keyCode === 13 && !loading) {
+        handleSubmit();
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  });
+
+  const handleChange = (event: any) => {
+    setPassword(event.target.value);
   };
 
   const handleExposePassword = () => {

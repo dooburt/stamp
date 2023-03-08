@@ -2,6 +2,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import dayjs from 'dayjs';
 import {
   humanFileSize,
   initialsGenerator,
@@ -53,6 +54,8 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
 
   const selectedColor = pickColor(item.color || color || 'yellow');
   const generatedInitials = initialsGenerator(item.friendlyName) || initials;
+  const created = dayjs(item.created).format('dddd D MMMM [at] HH:mm:ss Z');
+  const modified = dayjs(item.modified).format('dddd D MMMM [at] HH:mm:ss Z');
 
   return (
     <motion.div
@@ -156,7 +159,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
           </div>
         </div>
 
-        <div className="mb-2 mt-8">
+        <div className="mb-2 mt-4">
           <Button
             label={renderLabel()}
             classes={[
@@ -170,7 +173,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
             handleClick={() => console.log('cobblers')}
           />
         </div>
-        <div className="mb-8 mt-2">
+        <div className="mb-4 mt-2">
           <Button
             label={renderDeleteLabel()}
             classes={[
@@ -187,10 +190,10 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
 
         <div className="justify-center text-center pt-4">
           <span className="block text-xs text-slate-400">
-            created: 30th January 2023 at 10:32:22
+            created: {created}
           </span>
           <span className="block text-xs text-slate-400">
-            modified: 30th January 2023 at 10:32:22
+            modified: {modified}
           </span>
         </div>
       </div>

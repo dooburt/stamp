@@ -21,7 +21,7 @@ const ConfirmRemovalModal: React.FC<ConfirmRemovalModalProps> = ({
 
   useEffect(() => {
     const handleEsc = (event: any) => {
-      if (event.keyCode === 27 && !loading) {
+      if (event.keyCode === 27 && !loading && open) {
         onClose();
       }
     };
@@ -30,7 +30,15 @@ const ConfirmRemovalModal: React.FC<ConfirmRemovalModalProps> = ({
     return () => {
       window.removeEventListener('keydown', handleEsc);
     };
-  }, [onClose, loading]);
+  }, [onClose, loading, open]);
+
+  const handleCancel = () => {
+    onClose();
+  };
+
+  const handleRemove = () => {
+    setLoading(true);
+  };
 
   const renderLoading = () => {
     return (
