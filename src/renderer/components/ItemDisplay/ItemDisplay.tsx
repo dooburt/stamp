@@ -13,6 +13,7 @@ import { faLockOpen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Button from '../Button/Button';
 import Tooltip from '../Tooltip/Tooltip';
 import ConfirmRemovalModal from '../ConfirmRemovalModal/ConfirmRemovalModal';
+import StatusPill from '../StatusPill/StatusPill';
 
 type ItemDisplayProps = {
   item: PeekabooItem;
@@ -131,7 +132,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({ item, initials, color }) => {
           </span>
           <div className="block text-sm text-gray-900">
             <span className="block text-sm font-normal dark:bg-gray-800 truncate">
-              {item.status}
+              <StatusPill text={item.status} />
             </span>
           </div>
         </div>

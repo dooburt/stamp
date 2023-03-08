@@ -13,10 +13,21 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import AddItemModal from 'renderer/components/AddItemModal/AddItemModal';
 import ItemDisplayNonIdealState from 'renderer/components/ItemDisplay/ItemDisplayNonIdealState';
 import { isEmptyPeekaboo } from 'renderer/core/utils';
-import { emptyPeekaboo, PeekabooItem } from 'renderer/constants/app';
+import { Size, useWindowSize } from 'renderer/core/hooks';
+import {
+  APPBAR_HEIGHT,
+  emptyPeekaboo,
+  PeekabooItem,
+} from 'renderer/constants/app';
 // import SizedConfetti from 'renderer/components/SizedConfetti/SizedConfetti';
 
 function Dashboard() {
+  const size: Size = useWindowSize();
+
+  const itemListHeight = (size.height || 0) - APPBAR_HEIGHT;
+
+  console.log('list height', itemListHeight);
+
   // const [_, forceUpdate] = useReducer((x) => x + 1, 0);
   const [addNewModalOpen, setAddNewModalOpen] = useState(true);
   const [files, setFiles] = useState([]);
@@ -72,7 +83,7 @@ function Dashboard() {
 
   return (
     <>
-      <div className="grid grid-cols-12 max-h-[1024px] h-screen w-full">
+      <div className="grid grid-cols-12 h-screen w-full">
         {/* <SizedConfetti run={confetti} onCompleteConfetti={setConfetti(false)} /> */}
         <motion.div
           initial={slideAnimation.initial}
@@ -103,14 +114,20 @@ function Dashboard() {
         </motion.div>
         <div className="flex col-span-9 w-full">
           <div className="grid grid-cols-12 w-full mt-8">
-            <div className="flex col-span-5 h-screen bg-gray-100 scrollbar-thin scrollbar-rounded-md scrollbar-thumb-slate-500 scrollbar-track-gray-100 overflow-y-scroll border border-r-2 border-slate-100">
+            <div
+              className="flex col-span-5 bg-gray-100 scrollbar-thin scrollbar-rounded-md scrollbar-thumb-slate-500 scrollbar-track-gray-100 overflow-y-scroll border border-r-2 border-slate-100"
+              style={{ height: `${itemListHeight}px` }}
+            >
               <ItemList
                 list={files}
                 onSelectItem={handleSelectItem}
                 selectedItemId={item.id}
               />
             </div>
-            <div className="flex col-span-7 h-screen scrollbar-thin scrollbar-rounded-md scrollbar-thumb-slate-500 scrollbar-track-gray-100 overflow-y-scroll py-4 px-4">
+            <div
+              className="flex col-span-7 scrollbar-thin scrollbar-rounded-md scrollbar-thumb-slate-500 scrollbar-track-gray-100 overflow-y-scroll py-4 px-4"
+              style={{ height: `${size.height}px` }}
+            >
               {!isEmptyPeekaboo(item) ? (
                 <ItemDisplay item={item} />
               ) : (

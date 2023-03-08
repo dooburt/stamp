@@ -2,12 +2,17 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Dashboard from './screens/Dashboard/Dashboard';
 import Hello from './screens/Hello/Hello';
+import { Size, useWindowSize } from './core/hooks';
 
 import logo from './assets/eye.png';
 
 import './styles/app.css';
 
 export default function App() {
+  const size: Size = useWindowSize();
+
+  console.log('size', `${size.width}px / ${size.height}px`);
+
   return (
     <>
       <div id="dragbar" className="fixed z-10 w-full h-[31px] bg-slate-800">
