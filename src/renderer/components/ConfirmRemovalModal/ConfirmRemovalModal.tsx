@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/function-component-definition */
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { SpinnerCircular } from 'spinners-react';
@@ -18,19 +18,6 @@ const ConfirmRemovalModal: React.FC<ConfirmRemovalModalProps> = ({
   // onComplete,
 }) => {
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const handleEsc = (event: any) => {
-      if (event.keyCode === 27 && !loading && open) {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleEsc);
-
-    return () => {
-      window.removeEventListener('keydown', handleEsc);
-    };
-  }, [onClose, loading, open]);
 
   const handleCancel = () => {
     onClose();

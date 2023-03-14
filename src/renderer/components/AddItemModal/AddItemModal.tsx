@@ -23,7 +23,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
 
   useEffect(() => {
     const handleEsc = (event: any) => {
-      if (event.keyCode === 27 && !loading && open) {
+      if (event.keyCode === 27 && !loading) {
         onClose();
       }
     };
@@ -32,7 +32,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
     return () => {
       window.removeEventListener('keydown', handleEsc);
     };
-  }, [onClose, loading, open]);
+  }, [onClose, loading]);
 
   const renderLoading = () => {
     return (
