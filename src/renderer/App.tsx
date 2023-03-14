@@ -4,9 +4,10 @@ import Dashboard from './screens/Dashboard/Dashboard';
 import Hello from './screens/Hello/Hello';
 import { Size, useWindowSize } from './core/hooks';
 
-import logo from './assets/eye.png';
+import logo from './assets/ghost.png';
 
 import './styles/app.css';
+import Splash from './components/Splash/Splash';
 
 export default function App() {
   const size: Size = useWindowSize();
@@ -22,8 +23,9 @@ export default function App() {
       <div className="h-screen overflow-hidden">
         <Router>
           <Routes>
+            <Route path="/" element={<Splash />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/" element={<Hello />} />
+            <Route path="/hello" element={<Hello />} />
           </Routes>
         </Router>
       </div>

@@ -18,7 +18,7 @@ import chalk from 'chalk';
 import dayjs from 'dayjs';
 import fs from 'fs';
 import { randomUUID } from 'crypto';
-
+import { PeekabooItem } from 'renderer/constants/app';
 import zip from './zip';
 import MenuBuilder from './menu';
 import availableColors from '../constants/colors';
@@ -31,7 +31,6 @@ import {
   uniqueName,
 } from './util';
 import encryptionPipe from './encryptor';
-import { PeekabooItem } from 'renderer/constants/app';
 
 const Store = require('electron-store');
 
@@ -317,10 +316,10 @@ const createWindow = async () => {
     show: false,
     width: WIDTH,
     minWidth: WIDTH,
-    // maxWidth: 3840,
+    maxWidth: 3840,
     minHeight: HEIGHT,
-    // maxHeight: HEIGHT,
-    height: HEIGHT,
+    maxHeight: HEIGHT,
+    height: 2160,
     icon: getAssetPath('icon.png'),
     frame: false,
     webPreferences: {
