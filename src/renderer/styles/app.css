@@ -15,6 +15,13 @@
       format('truetype');
 }
 
+@font-face {
+  font-family: 'Red Hat Mono';
+  src: local('Red Hat Mono'),
+    url('../assets/fonts/Red_Hat_Mono/static/RedHatMono-Regular.ttf')
+      format('truetype');
+}
+
 #dragbar {
   -webkit-app-region: drag;
 }

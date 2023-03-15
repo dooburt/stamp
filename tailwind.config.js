@@ -3,6 +3,9 @@
 module.exports = {
   content: ['./src/**/*.{html,js,ts,tsx}'],
   theme: {
+    fontFamily: {
+      mono: ['Red Hat Mono', 'SFMono-Regular'],
+    },
     extend: {
       keyframes: {
         wiggle: {

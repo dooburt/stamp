@@ -3,11 +3,11 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import Dashboard from './screens/Dashboard/Dashboard';
 import Hello from './screens/Hello/Hello';
 import { Size, useWindowSize } from './core/hooks';
-
+import Splash from './components/Splash/Splash';
+import ConsoleContainer from './components/ConsoleContainer/ConsoleContainer';
 import logo from './assets/ghost.png';
 
 import './styles/app.css';
-import Splash from './components/Splash/Splash';
 
 export default function App() {
   const size: Size = useWindowSize();
@@ -26,6 +26,7 @@ export default function App() {
             <Route path="/" element={<Splash />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/hello" element={<Hello />} />
+            <Route path="/console" element={<ConsoleContainer />} />
           </Routes>
         </Router>
       </div>

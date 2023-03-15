@@ -4,6 +4,7 @@
 /* eslint-disable react/no-unescaped-entities */
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import Button from 'renderer/components/Button/Button';
 import ItemDisplay from 'renderer/components/ItemDisplay/ItemDisplay';
 import ItemList from 'renderer/components/ItemList/ItemList';
@@ -24,9 +25,9 @@ import ConfirmRemovalModal from 'renderer/components/ConfirmRemovalModal/Confirm
 
 function Dashboard() {
   const size: Size = useWindowSize();
+  const navigate = useNavigate();
 
   const itemListHeight = (size.height || 0) - APPBAR_HEIGHT;
-  const displayPaneHeight = itemListHeight + 40;
 
   console.log('list height', itemListHeight);
 
@@ -77,6 +78,10 @@ function Dashboard() {
     setItem(selected || emptyPeekaboo);
   };
 
+  const handleOpenConsole = () => {
+    navigate('/console');
+  };
+
   const renderLabel = () => {
     return (
       <>
@@ -84,6 +89,10 @@ function Dashboard() {
         <span className="text-white pl-1">New Item</span>
       </>
     );
+  };
+
+  const renderConsoleLabel = () => {
+    return <span className="text-slate-800 pl-1">Console</span>;
   };
 
   console.log('item', item);
@@ -104,9 +113,23 @@ function Dashboard() {
             </div>
             <div className="w-full">
               <Button
-                label={renderLabel()}
+                label={renderConsoleLabel()}
                 classes={[
                   'mt-8',
+                  'h-12',
+                  'w-full',
+                  'bg-slate-300',
+                  'hover:bg-purple-700/60',
+                  'disabled:bg-gray-200',
+                  'disabled:text-gray-500',
+                ]}
+                handleClick={handleOpenConsole}
+              />
+            </div>
+            <div className="w-full mt-2">
+              <Button
+                label={renderLabel()}
+                classes={[
                   'h-12',
                   'w-full',
                   'bg-slate-600',

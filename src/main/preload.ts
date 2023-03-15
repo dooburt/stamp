@@ -4,6 +4,14 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 contextBridge.exposeInMainWorld('electron', {
+  getConsole: async () => {
+    try {
+      return await ipcRenderer.invoke('GET_CONSOLE');
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  },
   readPeekabooContents: async () => {
     try {
       return await ipcRenderer.invoke('READ_PEEKABOO_CONTENTS');

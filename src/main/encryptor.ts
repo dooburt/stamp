@@ -1,7 +1,18 @@
 /* eslint-disable no-bitwise */
 import { pipeline } from 'stream/promises';
-import { createReadStream, createWriteStream } from 'fs';
-import { createCipheriv, createHash, createHmac, randomBytes } from 'crypto';
+import {
+  createReadStream,
+  createWriteStream,
+  readFileSync,
+  writeFileSync,
+} from 'fs';
+import {
+  createCipheriv,
+  createHash,
+  createHmac,
+  pbkdf2Sync,
+  randomBytes,
+} from 'crypto';
 
 // C:\Users\dooburt\AppData\Roaming\peekaboo\vault
 
@@ -36,26 +47,40 @@ async function encryptionPipe(
   pathToBoo: string
 ) {
   // https://fireship.io/lessons/node-crypto-examples/
+  // https://brandonstilson.com/encrypting-files-with-node/
   // https://matrix-org.github.io/matrix-js-sdk/6.0.0-rc.1/crypto_aes.js.html
   // we must store the IV, it is required for decryption
-  const hash = createHash('sha256')
-    .update(String(key))
-    .digest('base64')
-    .substr(0, 32);
+  // const hash = createHash('sha256')
+  //   .update(String(key))
+  //   .digest('base64')
+  //   .substr(0, 32);
+
+  const salt = randomBytes(128).toString('base64');
+  const hash = pbkdf2Sync(String(key), salt, 10000, 32, 'sha256');
+
   const iv = randomBytes(16);
 
-  console.log('iv', iv);
+  console.log('salt', salt);
+  console.log('hash', hash, hash.length);
+  console.log('iv', iv, iv.length);
   console.log('iv hex', iv.toString('hex'));
-  console.log('iv sliced', iv.toString('hex').slice(0, 16));
 
-  const data = await pipeline(
-    createReadStream(pathToZip),
-    createCipheriv('aes-256-ctr', hash, iv).setAutoPadding(true),
-    createWriteStream(pathToBoo)
-  );
-  console.log('Encryption pipe', data, iv, hash);
+  const zipFile = readFileSync(pathToZip);
+  const cipher = createCipheriv('aes-256-cbc', hash, iv).setAutoPadding(true);
 
-  return { data, iv: iv.toString('hex'), hash };
+  let encrypted = cipher.update(zipFile);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+  writeFileSync(pathToBoo, encrypted);
+
+  // const data = await pipeline(
+  //   createReadStream(pathToZip),
+  //   createCipheriv('aes-256-cbc', hash, iv).setAutoPadding(true),
+  //   createWriteStream(pathToBoo)
+  // );
+  // console.log('Encryption pipe', data, iv, hash, salt);
+
+  return { iv: iv.toString('hex'), hash, salt };
 }
 
 export default encryptionPipe;

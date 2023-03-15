@@ -123,6 +123,8 @@ export function getComputerName() {
   }
 }
 
+export const byteSize = (str) => new Blob([str]).size;
+
 export const dirSize = async (directory: string) => {
   const files = await readdir(directory);
   const stats = files.map((file: any) => stat(path.join(directory, file)));

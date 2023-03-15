@@ -16,8 +16,8 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain, protocol, dialog } from 'electron';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
-import fs from 'fs';
-import { randomUUID } from 'crypto';
+import fs, { createReadStream, createWriteStream } from 'fs';
+import { createCipheriv, pbkdf2Sync, randomBytes, randomUUID } from 'crypto';
 import { PeekabooItem } from 'renderer/constants/app';
 import zip from './zip';
 import MenuBuilder from './menu';
@@ -43,6 +43,14 @@ const WIDTH = 1024;
 let mainWindow: BrowserWindow | null = null;
 let localStore: any = null;
 let rawKey: string = '';
+
+ipcMain.handle('GET_CONSOLE', async () => {
+  console.log(chalk.yellow(`GET_CONSOLE`));
+
+  const outputArray = [];
+  outputArray.push('Welcome to Peekaboo v0.0.1');
+  return outputArray;
+});
 
 ipcMain.handle('READ_PEEKABOO_CONTENTS', async () => {
   console.log(chalk.yellow(`READ_PEEKABOO_CONTENTS`));
@@ -142,6 +150,7 @@ ipcMain.handle('DECRYPT', async (event, idToDecrypt) => {
     peekabooLocation,
     rawKey,
     found.iv,
+    found.salt,
     decryptedZip
   );
   console.log(
@@ -186,7 +195,8 @@ ipcMain.handle('ENCRYPT_DIR', async (event, pathToData) => {
     chalk.green(
       `Encrypted boofile created successfully`,
       encryptedContent.iv,
-      encryptedContent.hash
+      encryptedContent.hash,
+      encryptedContent.salt
     )
   );
 
@@ -200,6 +210,7 @@ ipcMain.handle('ENCRYPT_DIR', async (event, pathToData) => {
   storeContent.push({
     id: randomUUID(),
     iv: encryptedContent.iv,
+    salt: encryptedContent.salt,
     color: shuffle(availableColors)[2],
     friendlyName: obsfucatedName,
     secureName: obsfucatedName,

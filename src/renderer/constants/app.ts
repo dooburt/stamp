@@ -12,6 +12,8 @@ export enum PeekabooStatus {
 
 export interface PeekabooItem {
   id: string;
+  iv: string;
+  salt: string;
   friendlyName: string;
   secureName: string;
   originalLocation: string;
@@ -26,6 +28,8 @@ export interface PeekabooItem {
 
 export const emptyPeekaboo: PeekabooItem = {
   id: '',
+  iv: '',
+  salt: '',
   friendlyName: '',
   secureName: '',
   originalLocation: '',
