@@ -36,6 +36,14 @@ contextBridge.exposeInMainWorld('electron', {
       return false;
     }
   },
+  decrypt: async (idToDecrypt: string) => {
+    try {
+      return await ipcRenderer.invoke('DECRYPT', idToDecrypt);
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  },
   encryptDir: async (pathToData: string) => {
     try {
       return await ipcRenderer.invoke('ENCRYPT_DIR', pathToData);

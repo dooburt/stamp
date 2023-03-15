@@ -30,7 +30,7 @@ function Splash() {
         transition={slideAnimation.transition}
         src={splash}
         alt="Peekaboo"
-        className="w-full h-full object-cover animate-pulse"
+        className="w-full h-full object-cover"
       />
     </div>
   );

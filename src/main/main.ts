@@ -31,6 +31,7 @@ import {
   uniqueName,
 } from './util';
 import encryptionPipe from './encryptor';
+import decryptionPipe from './decryptor';
 
 const Store = require('electron-store');
 
@@ -76,7 +77,7 @@ ipcMain.handle('READ_PEEKABOO_CONTENTS', async () => {
     decodedData.push(b);
   });
 
-  console.log('decodedData', decodedData);
+  // console.log('decodedData', decodedData);
   return decodedData;
 
   // const vaultPath = `${app.getPath('userData')}\\vault\\`;
@@ -105,6 +106,9 @@ ipcMain.handle('DECRYPT', async (event, idToDecrypt) => {
     // encryptionKey: key,
   });
 
+  const vaultPath = `${app.getPath('userData')}\\vault\\`;
+  if (!fs.existsSync(vaultPath)) fs.mkdirSync(vaultPath);
+
   const storeContent = (await localStore.get('contents')) || [];
   const found = storeContent.find(
     (item: PeekabooItem) => item.id === idToDecrypt
@@ -114,8 +118,39 @@ ipcMain.handle('DECRYPT', async (event, idToDecrypt) => {
     return null;
   }
 
-  // const booFile = found.peekabooLocation;
-  // const original = found.originalLocation;
+  const decryptedZip = `${vaultPath}\\${found.secureName}.boo`;
+
+  const originalLocation = Buffer.from(
+    found.originalLocation,
+    'base64'
+  ).toString('ascii');
+  const peekabooLocation = Buffer.from(
+    found.peekabooLocation,
+    'base64'
+  ).toString('ascii');
+
+  console.log(
+    chalk.cyan(
+      'found',
+      JSON.stringify(found),
+      originalLocation,
+      peekabooLocation
+    )
+  );
+
+  const decryptedContent = await decryptionPipe(
+    peekabooLocation,
+    rawKey,
+    found.iv,
+    decryptedZip
+  );
+  console.log(
+    chalk.green(
+      `Decrypyted boofile created successfully`,
+      JSON.stringify(decryptedContent)
+    )
+  );
+
   return null;
 });
 
@@ -186,6 +221,7 @@ ipcMain.handle('ENCRYPT_DIR', async (event, pathToData) => {
   await delay(1000);
 
   fs.unlinkSync(archive);
+  fs.rmSync(pathToData, { recursive: true, force: true });
 
   console.log(chalk.green(`Removed archive: ${archive}`));
 
@@ -316,10 +352,10 @@ const createWindow = async () => {
     show: false,
     width: WIDTH,
     minWidth: WIDTH,
-    maxWidth: 3840,
+    maxWidth: WIDTH,
     minHeight: HEIGHT,
     maxHeight: HEIGHT,
-    height: 2160,
+    height: HEIGHT,
     icon: getAssetPath('icon.png'),
     frame: false,
     webPreferences: {

@@ -34,6 +34,11 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
     transition: { ease: 'easeOut', duration: 1.1 },
   };
 
+  const onDecrypt = async () => {
+    console.log('doing some bizzo with', item.id);
+    await window.electron.decrypt(item.id);
+  };
+
   const renderLabel = () => {
     return (
       <>
@@ -170,7 +175,7 @@ const ItemDisplay: React.FC<ItemDisplayProps> = ({
               'disabled:bg-gray-200',
               'disabled:text-gray-500',
             ]}
-            handleClick={() => console.log('cobblers')}
+            handleClick={onDecrypt}
           />
         </div>
         <div className="mb-4 mt-2">

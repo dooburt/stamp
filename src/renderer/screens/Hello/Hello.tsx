@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import EnterMasterPassword from 'renderer/components/EnterMasterPassword/EnterMasterPassword';
 import Splashback from 'renderer/components/Splashback/Splashback';
-import Avatar from '../../components/Avatar/Avatar';
+import Ghost from 'renderer/components/Ghost/Ghost';
 import Heading from '../../components/Heading/Heading';
 import SetMasterPassword from '../../components/SetMasterPassword/SetMasterPassword';
 
@@ -13,8 +13,8 @@ function PreTouch() {
   return (
     <>
       <div className="flex flex-row mb-6">
-        <div className="relative rounded-full w-24 h-24 bg-contain bg-slate-200">
-          <Avatar classes={['w-24', 'h-24']} />
+        <div className="relative rounded-full w-24 h-24 bg-contain">
+          <Ghost classes={['w-24', 'h-24']} />
         </div>
         <div className="ml-4 mt-8">
           <Heading title="Hello 👋" />
@@ -33,8 +33,8 @@ function Touched() {
   return (
     <>
       <div className="flex flex-row mb-6">
-        <div className="relative rounded-full w-24 h-24 bg-contain bg-slate-200">
-          <Avatar classes={['w-24', 'h-24']} />
+        <div className="relative rounded-full w-24 h-24 bg-contain">
+          <Ghost classes={['w-24', 'h-24']} />
         </div>
         <div className="ml-4 mt-8">
           <Heading title="Hey there 👋" />
