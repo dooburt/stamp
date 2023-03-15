@@ -126,7 +126,7 @@ ipcMain.handle('DECRYPT', async (event, idToDecrypt) => {
     return null;
   }
 
-  const decryptedZip = `${vaultPath}\\${found.secureName}.boo`;
+  const decryptedZip = `${vaultPath}\\${found.secureName}.zip`;
 
   const originalLocation = Buffer.from(
     found.originalLocation,
