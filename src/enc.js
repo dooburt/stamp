@@ -19,6 +19,23 @@ const pipelineAsync = promisify(pipeline);
 
 const KEY = 'testkeysomemoreabsolutebollocks';
 
+/**
+ * So step-by-step this is what should happen:
+ * 1. We have an "encryptWhat" sniff function that determines whether we have files
+ * or folders or a single file.
+ * 2. It creates a .json metadata file for this encryption. This contains that
+ * encryptWhat sniff result - plus anything else we care about (like a checksum) of
+ * what we're encrypting perhaps.
+ * 3. We put both files into a gunzip
+ * 4. We encrypt the gunzip into a boo file (making the file impossible to open)
+ *
+ * For decryption
+ * 1. We open the boo file
+ * 2. We decrypt the boo file
+ * 3. We unzip the gunzip and read the json metadata (perhaps with checksum check)
+ * 4. We write the gunzip contents to their original location
+ */
+
 const encryptFile = async (startPath, zipPath, endFilePath) => {
   const salt = randomBytes(128).toString('base64');
   const hash = pbkdf2Sync(KEY, salt, 100, 32, 'sha256');
