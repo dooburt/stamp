@@ -3,12 +3,17 @@
 /* eslint-disable func-names */
 /* eslint-disable no-shadow */
 /* eslint-disable no-console */
+const chalk = require('chalk');
+const AdmZip = require('adm-zip');
+const tarStream = require('tar-stream');
+const Gunzip = require('gunzip-maybe');
 const {
   createWriteStream,
   createReadStream,
   unlinkSync,
   rmSync,
   existsSync,
+  mkdirSync,
 } = require('fs');
 const { readdir, lstat, writeFile, readFile } = require('node:fs/promises');
 const {
@@ -18,10 +23,9 @@ const {
   pbkdf2Sync,
   createHash,
 } = require('crypto');
-const { pipeline } = require('stream');
+const { pipeline, Readable } = require('stream');
 const { promisify } = require('util');
 const { resolve } = require('path');
-const { createGunzip } = require('zlib');
 const archiver = require('archiver');
 const {
   uniqueNamesGenerator,
@@ -73,6 +77,46 @@ async function getFiles(dir) {
 }
 
 /**
+ * Create checksum of given path, in a memory efficient way
+ * @param {*} path path to the file we wish to checksum. If the path does not exist, will return null
+ * @returns the check sum in hex, or null if the path cannot be found
+ */
+function createChecksum(path) {
+  return new Promise(function (resolve, reject) {
+    if (!existsSync(path)) resolve(null);
+
+    const hash = createHash('md5');
+    const input = createReadStream(path);
+
+    input.on('error', reject);
+
+    input.on('data', function (chunk) {
+      hash.update(chunk);
+    });
+
+    input.on('close', function () {
+      resolve(hash.digest('hex'));
+    });
+  });
+}
+
+/**
+ * Generate a random string of letters and numbers. Not cryptographically secure.
+ * @param {number} length how long do you want the random string to be?
+ * @returns {string} the string of random characters
+ */
+const generateRandomString = (length) => {
+  let result = '';
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
+
+/**
  * Given a path, it will sniff what the path is and determine what that path is, a file, files or a folder
  * @param {string} path What do you want sniffed?
  */
@@ -116,18 +160,13 @@ const readTarget = async (path) => {
   });
 };
 
-const verifyChecksum = (pathToGunzip, existingChecksum) => {
-  if (!pathToGunzip) throw new Error('Need a gunzip path');
-  const checksum = createHash('md5').update(pathToGunzip).digest('hex');
-  return checksum === existingChecksum;
-};
-
 const createMetaData = async (metadataPath, tarPath) => {
   if (!metadataPath) throw new Error('Need a metadata path');
   if (!tarPath) throw new Error('Need a tar path');
-  const checksum = createHash('md5').update(tarPath).digest('hex');
+  // const checksum = createHash('md5').update(tarPath).digest('hex');
+  const checksum = await createChecksum(tarPath);
   const stats = await lstat(tarPath);
-  console.log('tar stats', stats);
+  console.log(chalk.yellow('TAR Checksum', checksum));
   const json = {
     path: tarPath,
     stats,
@@ -185,6 +224,85 @@ const deleteTarget = (targetPath) => {
   return true;
 };
 
+const unpackZip = async (targetPath, outputPath) => {
+  if (!targetPath) throw new Error('Need a target path');
+  if (!outputPath) throw new Error('Need a output path');
+
+  const zip = new AdmZip(targetPath);
+  zip.extractAllTo(outputPath, true);
+};
+
+const verifyMetadataAndChecksum = async (metadataPath, tarPath) => {
+  if (!metadataPath) throw new Error('Need a metadata path');
+  if (!tarPath) throw new Error('Need a tar path');
+
+  console.log('Verifying checksum...');
+
+  const metadata = await readFile(metadataPath, { encoding: 'utf-8' });
+  // const checksum = createHash('md5').update(tarPath).digest('hex');
+  const checksum = await createChecksum(tarPath);
+
+  try {
+    const json = JSON.parse(metadata);
+
+    console.log('Metadata JSON', json);
+    console.log('V1', json.checksum);
+    console.log('V2', checksum);
+
+    if (json.checksum !== checksum) {
+      throw new Error('Checksum mismatch');
+    }
+    console.log(chalk.green('Checksum verified'));
+    return true;
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+};
+
+const explodeTarball = async (tarPath, outputPath) => {
+  if (!tarPath) throw new Error('Need a tar path');
+  if (!outputPath) throw new Error('Need a output path');
+
+  return new Promise((resolve, reject) => {
+    console.log('Exploding tarball...');
+    try {
+      const gunzip = Gunzip();
+      const extract = tarStream.extract();
+      const readStream = createReadStream(tarPath);
+
+      // this line will be unnecessary when we cleanup
+      if (!existsSync(outputPath)) mkdirSync(outputPath);
+
+      extract.on('error', function (err) {
+        console.log(err);
+      });
+
+      extract.on('finish', function () {
+        console.log('Finished exploding tarball to', outputPath);
+        resolve();
+      });
+
+      extract.on('entry', function (header, stream, next) {
+        stream.on('end', function () {
+          console.log('Tarball stream read');
+          next();
+        });
+        stream.resume();
+      });
+
+      readStream.on('error', function (err) {
+        console.log(err);
+      });
+
+      readStream.pipe(gunzip).pipe(extract);
+    } catch (err) {
+      console.error(err);
+      reject();
+    }
+  });
+};
+
 const packTarget = async (targetPath, outputPath) => {
   if (!targetPath) throw new Error('Need a target path');
   if (!outputPath) throw new Error('Need a output path');
@@ -235,7 +353,8 @@ const finaliseEncryption = async (cwd, name, salt, iv, cleanup = false) => {
   const zip = `${cwd}\\${name}.zip`;
   const json = `${cwd}\\${name}.json`;
 
-  const checksum = createHash('md5').update(boo).digest('hex');
+  // const checksum = createHash('md5').update(boo).digest('hex');
+  const checksum = await createChecksum(boo);
   const stats = await lstat(boo);
 
   if (cleanup) {
@@ -286,28 +405,38 @@ const encrypt = async (zipPath, booPath) => {
 };
 
 /**
- * Decrypt a boo file back into whatever it was before (a file or folder)
- * @param {string} booFilePath The path to either a file or folder we wish to encrypt
+ * Decrypt a boo file
+ * @param {string} booPath The path to either a file we wish to decrypt
  * @param {string} iv Base64 initialisation vector from original encryption
  * @param {string} salt Base64 salt from original encryption
- * @param {string} outputPath Where do we put the decryption result? Typically, you put it back where it came from at encryption
- * @returns {object} An object with the `outputPath` returned
+ * @param {string} name Name of the boo
+ * @returns {object} Will decrypt to a <boo-name>.zip file of the if able
  */
-const decrypt = async (booFilePath, iv, salt, outputPath) => {
-  const hash = pbkdf2Sync(KEY, salt, 100, 32, 'sha256');
+const decrypt = async (cwd, iv, salt, name) => {
+  if (!cwd)
+    throw new Error('Need a current working directory where the boo file is');
+  if (!iv) throw new Error('Need an initialisation vector');
+  if (!salt) throw new Error('Need the salt');
+  if (!name) throw new Error('Need the name');
+
+  // we only tint the zip
+  const tint = generateRandomString(5).toLowerCase();
+  const boo = `${cwd}\\${name}.boo`;
+  const zip = `${cwd}\\${tint}-${name}.zip`;
+
+  if (!existsSync(boo)) throw new Error(`${boo} doesn't exist`);
+
+  const hash = pbkdf2Sync(KEY, salt, 1000, 32, 'sha256');
   const secretBuf = Buffer.from(hash, 'base64');
   const ivBuf = Buffer.from(iv, 'base64');
 
-  // if (!existsSync(endPath)) mkdirSync(endPath);
-
   await pipelineAsync(
-    createReadStream(booFilePath),
-    createGunzip(),
+    createReadStream(boo),
     createDecipheriv('aes-256-ctr', secretBuf, ivBuf),
-    createWriteStream(outputPath)
+    createWriteStream(zip)
   );
 
-  return { outputPath };
+  return { zip, name, secret: secretBuf, iv: ivBuf, salt, hash, tint };
 };
 
 const testFolderPath = `${__dirname}\\test-folder\\`;
@@ -344,6 +473,23 @@ const go = async () => {
   console.log('Encryption secret (hex)', encrypted.secret.toString('hex'));
   console.log('Encryption complete', finalised);
   console.log('Now lets decrypt...');
+  const decrypted = await decrypt(cwd, iv, salt, name);
+  console.log('Decryption secret (buffer)', decrypted.secret);
+  console.log('Decryption secret (hex)', decrypted.secret.toString('hex'));
+  console.log('Decryption tint', decrypted.tint);
+
+  const tint = decrypted.tint;
+  const dzipPath = `${__dirname}\\${tint}-${name}.zip`;
+  const explodeZipPath = `${__dirname}\\${tint}-${name}\\`;
+  const dmetadataPath = `${__dirname}\\${tint}-${name}\\${name}.json`;
+  const dtarPath = `${__dirname}\\${tint}-${name}\\${name}.tar`;
+  const tintedTestFolderPath = `${__dirname}\\${tint}-test-folder\\`;
+
+  await unpackZip(dzipPath, explodeZipPath);
+  await verifyMetadataAndChecksum(dmetadataPath, dtarPath);
+  await explodeTarball(dtarPath, tintedTestFolderPath);
+
+  console.log('Successfully decrypted');
 
   // encryptAndZip(testFolderPath);
   //console.log('Created encrypted gzip');
