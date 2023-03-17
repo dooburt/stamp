@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 /* eslint-disable no-promise-executor-return */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable func-names */
@@ -23,7 +24,7 @@ const {
   pbkdf2Sync,
   createHash,
 } = require('crypto');
-const { pipeline, Readable } = require('stream');
+const { pipeline } = require('stream');
 const { promisify } = require('util');
 const { resolve } = require('path');
 const archiver = require('archiver');
@@ -65,23 +66,13 @@ function uniqueName() {
  * 4. We write the gunzip contents to their original location
  */
 
-async function getFiles(dir) {
-  const dirents = await readdir(dir, { withFileTypes: true });
-  const files = await Promise.all(
-    dirents.map((dirent) => {
-      const res = resolve(dir, dirent.name);
-      return dirent.isDirectory() ? getFiles(res) : res;
-    })
-  );
-  return Array.prototype.concat(...files);
-}
-
 /**
  * Create checksum of given path, in a memory efficient way
  * @param {*} path path to the file we wish to checksum. If the path does not exist, will return null
  * @returns the check sum in hex, or null if the path cannot be found
  */
 function createChecksum(path) {
+  console.log('Checksum on', path);
   return new Promise(function (resolve, reject) {
     if (!existsSync(path)) resolve(null);
 
@@ -114,50 +105,6 @@ const generateRandomString = (length) => {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
-};
-
-/**
- * Given a path, it will sniff what the path is and determine what that path is, a file, files or a folder
- * @param {string} path What do you want sniffed?
- */
-const encryptWhat = async (path) => {
-  console.log(`encryptWhat`);
-  const stats = await lstat(path);
-
-  console.log(`Is file: ${stats.isFile()}`);
-  console.log(`Is directory: ${stats.isDirectory()}`);
-  console.log(`Is symbolic link: ${stats.isSymbolicLink()}`);
-  console.log(`Is FIFO: ${stats.isFIFO()}`);
-  console.log(`Is socket: ${stats.isSocket()}`);
-  console.log(`Is character device: ${stats.isCharacterDevice()}`);
-  console.log(`Is block device: ${stats.isBlockDevice()}`);
-
-  return {
-    isDirectory: stats.isDirectory(),
-    isFile: stats.isFile(),
-  };
-};
-
-/**
- * Reads a given path, returning either a file or a directory
- * @param {string} path the path to read
- * @returns either the file or the directory data
- */
-const readTarget = async (path) => {
-  const stats = await encryptWhat(path);
-
-  console.log('encryptWhat', stats, path);
-  const { isDirectory } = stats;
-
-  console.log('Target isDirectory?', isDirectory);
-
-  if (isDirectory) {
-    return readdir(path, { withFileTypes: true });
-  }
-  return readFile(path, (err, data) => {
-    if (err) throw err;
-    return data;
-  });
 };
 
 const createMetaData = async (metadataPath, tarPath) => {
@@ -219,7 +166,10 @@ function createZip(tarPath, metadataPath, outputPath) {
 const deleteTarget = (targetPath) => {
   if (!targetPath) throw new Error('Need a target path');
   const exists = existsSync(targetPath);
-  if (exists) return false;
+  if (!exists) return false;
+
+  console.log('Deleting target', targetPath);
+
   rmSync(targetPath, { recursive: true, force: true });
   return true;
 };
@@ -227,6 +177,8 @@ const deleteTarget = (targetPath) => {
 const unpackZip = async (targetPath, outputPath) => {
   if (!targetPath) throw new Error('Need a target path');
   if (!outputPath) throw new Error('Need a output path');
+
+  console.log('Unpacking', targetPath, 'to', outputPath);
 
   const zip = new AdmZip(targetPath);
   zip.extractAllTo(outputPath, true);
@@ -260,58 +212,18 @@ const verifyMetadataAndChecksum = async (metadataPath, tarPath) => {
   }
 };
 
-const explodeTarball = async (tarPath, outputPath) => {
-  if (!tarPath) throw new Error('Need a tar path');
-  if (!outputPath) throw new Error('Need a output path');
-
-  return new Promise((resolve, reject) => {
-    console.log('Exploding tarball...');
-    try {
-      const gunzip = Gunzip();
-      const extract = tarStream.extract();
-      const readStream = createReadStream(tarPath);
-
-      // this line will be unnecessary when we cleanup
-      if (!existsSync(outputPath)) mkdirSync(outputPath);
-
-      extract.on('error', function (err) {
-        console.log(err);
-      });
-
-      extract.on('finish', function () {
-        console.log('Finished exploding tarball to', outputPath);
-        resolve();
-      });
-
-      extract.on('entry', function (header, stream, next) {
-        stream.on('end', function () {
-          console.log('Tarball stream read');
-          next();
-        });
-        stream.resume();
-      });
-
-      readStream.on('error', function (err) {
-        console.log(err);
-      });
-
-      readStream.pipe(gunzip).pipe(extract);
-    } catch (err) {
-      console.error(err);
-      reject();
-    }
-  });
-};
-
 const packTarget = async (targetPath, outputPath) => {
   if (!targetPath) throw new Error('Need a target path');
   if (!outputPath) throw new Error('Need a output path');
 
   const stats = await lstat(targetPath);
 
+  console.log('Packing target', targetPath);
+  console.log('Target stats', stats);
+
   return new Promise((resolve, reject) => {
     const output = createWriteStream(outputPath);
-    const archive = archiver('tar', {
+    const archive = archiver('zip', {
       zlib: { level: 9 },
     });
 
@@ -331,17 +243,40 @@ const packTarget = async (targetPath, outputPath) => {
     archive.pipe(output);
 
     if (stats.isDirectory()) {
+      console.log('Packing directory...');
       archive.directory(targetPath, false);
     } else {
       const filename = path.basename(targetPath);
-      archive.file(targetPath, filename);
+      console.log('Packing file...', targetPath, filename);
+      archive.file(targetPath, { name: filename });
     }
 
     archive.finalize();
   });
 };
 
-const finaliseEncryption = async (cwd, name, salt, iv, cleanup = false) => {
+const finaliseDecryption = async (cwd, name) => {
+  if (!cwd)
+    throw new Error('Need a current working directory where the files are');
+  if (!name) throw new Error('Need the name of the encrypted operation');
+
+  const tmp = `${cwd}\\${name}\\`;
+  const zip = `${cwd}\\${name}.zip`;
+  const boo = `${cwd}\\${name}.boo`;
+
+  console.log('Cleaning up...');
+  unlinkSync(zip);
+  unlinkSync(boo);
+  deleteTarget(tmp);
+  console.log('Done cleaning up...');
+
+  return {
+    name,
+    cwd,
+  };
+};
+
+const finaliseEncryption = async (cwd, name, salt, iv, originalTarget) => {
   if (!cwd)
     throw new Error('Need a current working directory where the files are');
   if (!name) throw new Error('Need the name of the encrypted operation');
@@ -349,7 +284,7 @@ const finaliseEncryption = async (cwd, name, salt, iv, cleanup = false) => {
   if (!iv) throw new Error('Need an IV');
 
   const boo = `${cwd}\\${name}.boo`;
-  const tar = `${cwd}\\${name}.tar`;
+  const tar = `${cwd}\\${name}.enc.zip`;
   const zip = `${cwd}\\${name}.zip`;
   const json = `${cwd}\\${name}.json`;
 
@@ -357,13 +292,12 @@ const finaliseEncryption = async (cwd, name, salt, iv, cleanup = false) => {
   const checksum = await createChecksum(boo);
   const stats = await lstat(boo);
 
-  if (cleanup) {
-    console.log('Cleaning up...');
-    unlinkSync(tar);
-    unlinkSync(json);
-    unlinkSync(zip);
-    console.log('Done cleaning up...');
-  }
+  console.log('Cleaning up...');
+  unlinkSync(tar);
+  unlinkSync(json);
+  unlinkSync(zip);
+  deleteTarget(originalTarget);
+  console.log('Done cleaning up...');
 
   return {
     name,
@@ -422,7 +356,7 @@ const decrypt = async (cwd, iv, salt, name) => {
   // we only tint the zip
   const tint = generateRandomString(5).toLowerCase();
   const boo = `${cwd}\\${name}.boo`;
-  const zip = `${cwd}\\${tint}-${name}.zip`;
+  const zip = `${cwd}\\${name}.zip`;
 
   if (!existsSync(boo)) throw new Error(`${boo} doesn't exist`);
 
@@ -439,83 +373,75 @@ const decrypt = async (cwd, iv, salt, name) => {
   return { zip, name, secret: secretBuf, iv: ivBuf, salt, hash, tint };
 };
 
-const testFolderPath = `${__dirname}\\test-folder\\`;
-const fromFilePath = './test.txt';
-const booFilePath = './test.enc.boo';
-// const zipPath = './test.enc.gz';
-const finalFilePath = './test-decrypted.txt';
+const checkExists = (targetPath) => {
+  return existsSync(targetPath);
+};
+
+const checkIfDirectory = async (targetPath) => {
+  const stats = await lstat(targetPath);
+  return stats.isDirectory();
+};
+
+const testFolderPath = `${__dirname}\\peekaboo-test-folder\\`;
 
 const go = async () => {
   console.log('__dirname', __dirname, testFolderPath);
 
-  const files = await getFiles(testFolderPath);
-  const target = await readTarget(testFolderPath);
+  const isDirectory = await checkIfDirectory(testFolderPath);
+  if (!checkExists(testFolderPath)) {
+    console.error(`The target file doesn't exist!`);
+    return false;
+  }
+  if (!isDirectory) {
+    console.error(`Peekaboo only encrypts folders`);
+    return false;
+  }
+
   const name = uniqueName();
 
-  console.log('files', files);
-  console.log('target', target);
-  console.log('name', name);
+  console.log('Secure name: ', name);
+  console.log('Is directory?: ', isDirectory);
 
   const cwd = `${__dirname}\\`;
+  const explodeZipPath = `${__dirname}\\${name}\\`;
   const metadata = `${__dirname}\\${name}.json`;
   const zipPath = `${__dirname}\\${name}.zip`;
-  const tarPath = `${__dirname}\\${name}.tar`;
+  const encZipPath = `${__dirname}\\${name}.enc.zip`;
   const booPath = `${__dirname}\\${name}.boo`;
 
-  await packTarget(testFolderPath, tarPath);
-  await createMetaData(metadata, tarPath);
-  await createZip(tarPath, metadata, zipPath);
+  await packTarget(testFolderPath, encZipPath);
+  await createMetaData(metadata, encZipPath);
+  await createZip(encZipPath, metadata, zipPath);
   const encrypted = await encrypt(zipPath, booPath);
   const salt = encrypted.salt;
   const iv = encrypted.iv;
-  const finalised = await finaliseEncryption(cwd, name, salt, iv, false);
+  const finalised = await finaliseEncryption(
+    cwd,
+    name,
+    salt,
+    iv,
+    testFolderPath
+  );
   console.log('Encryption secret (buffer)', encrypted.secret);
   console.log('Encryption secret (hex)', encrypted.secret.toString('hex'));
   console.log('Encryption complete', finalised);
+
   console.log('Now lets decrypt...');
   const decrypted = await decrypt(cwd, iv, salt, name);
   console.log('Decryption secret (buffer)', decrypted.secret);
   console.log('Decryption secret (hex)', decrypted.secret.toString('hex'));
   console.log('Decryption tint', decrypted.tint);
 
-  const tint = decrypted.tint;
-  const dzipPath = `${__dirname}\\${tint}-${name}.zip`;
-  const explodeZipPath = `${__dirname}\\${tint}-${name}\\`;
-  const dmetadataPath = `${__dirname}\\${tint}-${name}\\${name}.json`;
-  const dtarPath = `${__dirname}\\${tint}-${name}\\${name}.tar`;
-  const tintedTestFolderPath = `${__dirname}\\${tint}-test-folder\\`;
+  const dmetadataPath = `${__dirname}\\${name}\\${name}.json`;
+  const dencZipPath = `${__dirname}\\${name}\\${name}.enc.zip`;
 
-  await unpackZip(dzipPath, explodeZipPath);
-  await verifyMetadataAndChecksum(dmetadataPath, dtarPath);
-  await explodeTarball(dtarPath, tintedTestFolderPath);
+  await unpackZip(zipPath, explodeZipPath);
+  await verifyMetadataAndChecksum(dmetadataPath, dencZipPath);
+  await unpackZip(dencZipPath, testFolderPath);
+  await finaliseDecryption(cwd, name);
 
   console.log('Successfully decrypted');
-
-  // encryptAndZip(testFolderPath);
-  //console.log('Created encrypted gzip');
-
-  // const encrypted = await encrypt(fromFilePath, gunzipPath, booFilePath);
-  // const { iv } = encrypted;
-  // const { salt } = encrypted;
-
-  // console.log('Created metadata here', json);
-
-  // const zip = `${__dirname}\\${name}.zip`;
-  // createWrapperZip(name, gunzipPath, json, zip);
-
-  // console.log('Created zip here', zip);
-
-  // console.log(
-  //   chalk.blue(
-  //     `Encrypted successfully, got ${encrypted.secret} and ${iv} and salt ${salt}`
-  //   )
-  // );
-
-  // const decrypted = await decrypt(booFilePath, iv, salt, finalFilePath);
-
-  // console.log(
-  //   chalk.green(`Decrypted successfully, got ${decrypted.outputPath} back`)
-  // );
+  return true;
 };
 
 go();
