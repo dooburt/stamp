@@ -1,6 +1,6 @@
 {
-  "name": "Peekaboo",
-  "description": "An app for the encryption of local files and folders",
+  "name": "Stamp",
+  "description": "An encrypted desktop email app",
   "keywords": [
     "electron",
     "react",
@@ -13,8 +13,8 @@
   ],
   "license": "MIT",
   "author": {
-    "name": "dooburt",
-    "email": "dooburt@gmail.com"
+    "name": "Splondge",
+    "email": "hey@splondge.co.uk"
   },
   "main": "./src/main/main.ts",
   "scripts": {
@@ -182,8 +182,8 @@
     "webpack-merge": "^5.8.0"
   },
   "build": {
-    "productName": "Peekaboo",
-    "appId": "org.erb.Peekaboo",
+    "productName": "Stamp",
+    "appId": "org.erb.Stamp",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [

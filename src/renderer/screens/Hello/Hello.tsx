@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 /* eslint-disable no-console */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/no-unescaped-entities */
@@ -5,26 +6,27 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import EnterMasterPassword from 'renderer/components/EnterMasterPassword/EnterMasterPassword';
 import Splashback from 'renderer/components/Splashback/Splashback';
-import Ghost from 'renderer/components/Ghost/Ghost';
+import Stamp from 'renderer/components/Stamp/Stamp';
 import Heading from '../../components/Heading/Heading';
-import SetMasterPassword from '../../components/SetMasterPassword/SetMasterPassword';
+import ProviderList from 'renderer/components/ProviderList/ProviderList';
 
 function PreTouch() {
   return (
     <>
       <div className="flex flex-row mb-6">
-        <div className="relative rounded-full w-24 h-24 bg-contain">
-          <Ghost classes={['w-24', 'h-24']} />
-        </div>
-        <div className="ml-4 mt-8">
+        {/* <div className="relative rounded-full w-24 h-24 bg-contain">
+          <Stamp classes={['w-24', 'h-24']} />
+        </div> */}
+        <div className="mt-8">
           <Heading title="Hello 👋" />
         </div>
       </div>
       <p className="text-slate-500">
-        You're new here. To get started, we need to set a very good master
-        password.
+        You're new here. To get started, let's login to your email provider.
       </p>
-      <SetMasterPassword />
+      <div className="mt-8">
+        <ProviderList />
+      </div>
     </>
   );
 }
@@ -33,15 +35,15 @@ function Touched() {
   return (
     <>
       <div className="flex flex-row mb-6">
-        <div className="relative rounded-full w-24 h-24 bg-contain">
-          <Ghost classes={['w-24', 'h-24']} />
-        </div>
+        {/* <div className="relative rounded-full w-24 h-24 bg-contain">
+          <Stamp classes={['w-24', 'h-24']} />
+        </div> */}
         <div className="ml-4 mt-8">
           <Heading title="Hey there 👋" />
         </div>
       </div>
       <p className="text-slate-500">
-        Welcome back. Enter your master password to access Peekaboo.
+        Welcome back. Log back into your email provider to get going.
       </p>
       <EnterMasterPassword />
     </>

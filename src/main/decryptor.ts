@@ -1,64 +1,120 @@
-import { pipeline } from 'stream/promises';
-import {
-  createReadStream,
+/* eslint-disable no-console */
+const chalk = require('chalk');
+const { pipeline } = require('stream');
+const { promisify } = require('util');
+const {
   createWriteStream,
-  readFileSync,
-  writeFileSync,
-} from 'fs';
-import { createDecipheriv, pbkdf2Sync } from 'crypto';
+  createReadStream,
+  existsSync,
+  unlinkSync,
+} = require('fs');
+const {
+  createDecipheriv,
 
-async function decryptionPipe(
-  pathToBoo: string,
+  pbkdf2Sync,
+} = require('crypto');
+const { readFile } = require('node:fs/promises');
+const {
+  generateRandomString,
+  createChecksum,
+  deleteTarget,
+} = require('./util');
+
+const pipelineAsync = promisify(pipeline);
+
+/**
+ * Decrypt a boo file
+ * @param {string} key The key/password string
+ * @param {string} cwd Current working directory
+ * @param {string} iv Base64 initialisation vector from original encryption
+ * @param {string} salt Base64 salt from original encryption
+ * @param {string} name Name of the boo
+ * @returns {object} Will decrypt to a <boo-name>.zip file of the if able
+ */
+const decrypt = async (
   key: string,
-  encodedIv: string,
+  cwd: string,
+  iv: string,
   salt: string,
-  zipLocation: string
-) {
-  // we must store the IV, it is required for decryption
-  // const hash = createHash('sha256')
-  //   .update(String(key))
-  //   .digest('base64')
-  //   .substr(0, 32);
+  name: string
+) => {
+  if (!key) throw new Error('Need the key');
+  if (!cwd)
+    throw new Error('Need a current working directory where the boo file is');
+  if (!iv) throw new Error('Need an initialisation vector');
+  if (!salt) throw new Error('Need the salt');
+  if (!name) throw new Error('Need the name');
 
-  const hash = pbkdf2Sync(String(key), salt, 10000, 32, 'sha256');
-  const iv = Buffer.from(encodedIv, 'hex');
+  // we only tint the zip
+  const tint = generateRandomString(5).toLowerCase();
+  const boo = `${cwd}\\${name}.boo`;
+  const zip = `${cwd}\\${name}.zip`;
 
-  console.log('pathToBoo', pathToBoo);
-  console.log('key', key);
-  console.log('encodedIv', encodedIv);
-  console.log('iv', iv, iv.length);
-  console.log('salt', salt);
-  console.log('hash (should be the same)', hash, hash.length);
-  console.log('zipLocation', zipLocation);
+  if (!existsSync(boo)) throw new Error(`${boo} doesn't exist`);
 
-  const booFile = readFileSync(pathToBoo);
-  const decipher = createDecipheriv('aes-256-cbc', hash, iv).setAutoPadding(
-    true
+  const hash = pbkdf2Sync(key, salt, 1000, 32, 'sha256');
+  const secretBuf = Buffer.from(hash, 'base64');
+  const ivBuf = Buffer.from(iv, 'base64');
+
+  await pipelineAsync(
+    createReadStream(boo),
+    createDecipheriv('aes-256-ctr', secretBuf, ivBuf),
+    createWriteStream(zip)
   );
 
-  let decrypted = decipher.update(booFile);
-  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return { zip, name, secret: secretBuf, iv: ivBuf, salt, hash, tint };
+};
 
-  writeFileSync(zipLocation, decrypted);
+const verifyMetadataAndChecksum = async (
+  metadataPath: string,
+  tarPath: string
+) => {
+  if (!metadataPath) throw new Error('Need a metadata path');
+  if (!tarPath) throw new Error('Need a tar path');
 
-  // const data = await pipeline(
-  //   createReadStream(pathToBoo),
-  //   createDecipheriv('aes-256-cbc', hash, iv).setAutoPadding(true),
-  //   createWriteStream(zipLocation)
-  // );
+  console.log('Verifying checksum...');
 
-  // const hash = createHash('sha256')
-  //   .update(String(key))
-  //   .digest('base64')
-  //   .substr(0, 32);
-  // const data = await pipeline(
-  //   createReadStream(pathToBoo),
-  //   createCipheriv('aes-256-cbc', hash, iv),
-  //   createWriteStream(pathToBoo)
-  // );
-  // console.log('Decryption pipe', data, iv);
+  const metadata = await readFile(metadataPath, { encoding: 'utf-8' });
+  // const checksum = createHash('md5').update(tarPath).digest('hex');
+  const checksum = await createChecksum(tarPath);
 
-  return { location: zipLocation };
-}
+  try {
+    const json = JSON.parse(metadata);
 
-export default decryptionPipe;
+    console.log('Metadata JSON', json);
+    console.log('V1', json.checksum);
+    console.log('V2', checksum);
+
+    if (json.checksum !== checksum) {
+      throw new Error('Checksum mismatch');
+    }
+    console.log(chalk.green('Checksum verified'));
+    return true;
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+};
+
+const finaliseDecryption = async (cwd: string, name: string) => {
+  if (!cwd)
+    throw new Error('Need a current working directory where the files are');
+  if (!name) throw new Error('Need the name of the encrypted operation');
+
+  const tmp = `${cwd}\\${name}\\`;
+  const zip = `${cwd}\\${name}.zip`;
+  const boo = `${cwd}\\${name}.boo`;
+
+  console.log('Cleaning up...');
+  unlinkSync(zip);
+  unlinkSync(boo);
+  deleteTarget(tmp);
+  console.log('Done cleaning up...');
+
+  return {
+    name,
+    cwd,
+  };
+};
+
+export { decrypt, verifyMetadataAndChecksum, finaliseDecryption };

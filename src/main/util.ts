@@ -1,9 +1,18 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable func-names */
+/* eslint-disable no-console */
+/* eslint-disable no-shadow */
 /* eslint-disable no-promise-executor-return */
 /* eslint-disable no-case-declarations */
+
+import { createHash } from 'crypto';
+import { createReadStream, existsSync, rmSync } from 'fs';
+
 /* eslint import/prefer-default-export: off */
 const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
+const { lstat } = require('node:fs/promises');
 const cp = require('child_process');
 const os = require('os');
 const { URL } = require('url');
@@ -52,6 +61,42 @@ export function getAvatarPath() {
   }
 
   return avatarPath;
+}
+
+export const deleteTarget = (targetPath: string) => {
+  if (!targetPath) throw new Error('Need a target path');
+  const exists = existsSync(targetPath);
+  if (!exists) return false;
+
+  console.log('Deleting target', targetPath);
+
+  rmSync(targetPath, { recursive: true, force: true });
+  return true;
+};
+
+/**
+ * Create checksum of given path, in a memory efficient way
+ * @param {string} path path to the file we wish to checksum. If the path does not exist, will return null
+ * @returns the check sum in hex, or null if the path cannot be found
+ */
+export function createChecksum(path: string) {
+  console.log('Checksum on', path);
+  return new Promise(function (resolve, reject) {
+    if (!existsSync(path)) resolve(null);
+
+    const hash = createHash('md5');
+    const input = createReadStream(path);
+
+    input.on('error', reject);
+
+    input.on('data', function (chunk: any) {
+      hash.update(chunk);
+    });
+
+    input.on('close', function () {
+      resolve(hash.digest('hex'));
+    });
+  });
 }
 
 export function getRandomAvatar() {
@@ -123,7 +168,7 @@ export function getComputerName() {
   }
 }
 
-export const byteSize = (str) => new Blob([str]).size;
+export const byteSize = (str: any) => new Blob([str]).size;
 
 export const dirSize = async (directory: string) => {
   const files = await readdir(directory);
@@ -156,3 +201,28 @@ export const shuffle = (arr: any) => {
 
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Generate a random string of letters and numbers. Not cryptographically secure.
+ * @param {number} length how long do you want the random string to be?
+ * @returns {string} the string of random characters
+ */
+export const generateRandomString = (length: number) => {
+  let result = '';
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
+
+export const checkExists = (targetPath: string) => {
+  return existsSync(targetPath);
+};
+
+export const checkIfDirectory = async (targetPath: string) => {
+  const stats = await lstat(targetPath);
+  return stats.isDirectory();
+};

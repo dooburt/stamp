@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 /* eslint-disable func-names */
 /* eslint-disable object-shorthand */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
@@ -16,13 +17,17 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain, protocol, dialog } from 'electron';
 import chalk from 'chalk';
 import dayjs from 'dayjs';
-import fs, { createReadStream, createWriteStream } from 'fs';
-import { createCipheriv, pbkdf2Sync, randomBytes, randomUUID } from 'crypto';
+import { lstat } from 'node:fs/promises';
+import fs from 'fs';
+import Store from 'electron-store';
+import { randomUUID } from 'crypto';
 import { PeekabooItem } from 'renderer/constants/app';
-import zip from './zip';
+import { createZip, packTarget, unpackZip } from './zip';
 import MenuBuilder from './menu';
 import availableColors from '../constants/colors';
 import {
+  checkExists,
+  checkIfDirectory,
   delay,
   getAssetsPath,
   getComputerName,
@@ -30,10 +35,12 @@ import {
   shuffle,
   uniqueName,
 } from './util';
-import encryptionPipe from './encryptor';
-import decryptionPipe from './decryptor';
-
-const Store = require('electron-store');
+import { createMetaData, encrypt, finaliseEncryption } from './encryptor';
+import {
+  decrypt,
+  finaliseDecryption,
+  verifyMetadataAndChecksum,
+} from './decryptor';
 
 const VERSION = '0.0.1'; // get from package eventually
 const HEIGHT = 728;
@@ -111,7 +118,6 @@ ipcMain.handle('DECRYPT', async (event, idToDecrypt) => {
   localStore = new Store({
     name: 'peekaboo',
     watch: true,
-    // encryptionKey: key,
   });
 
   const vaultPath = `${app.getPath('userData')}\\vault\\`;
@@ -126,116 +132,113 @@ ipcMain.handle('DECRYPT', async (event, idToDecrypt) => {
     return null;
   }
 
-  const decryptedZip = `${vaultPath}\\${found.secureName}.zip`;
-
   const originalLocation = Buffer.from(
     found.originalLocation,
     'base64'
   ).toString('ascii');
-  const peekabooLocation = Buffer.from(
-    found.peekabooLocation,
-    'base64'
-  ).toString('ascii');
 
-  console.log(
-    chalk.cyan(
-      'found',
-      JSON.stringify(found),
-      originalLocation,
-      peekabooLocation
-    )
-  );
+  const cwd = vaultPath;
+  const iv = found.iv;
+  const salt = found.salt;
+  const name = found.secureName;
+  const explodeZipPath = `${cwd}\\${name}\\`;
+  const zipPath = `${cwd}\\${name}.zip`;
 
-  const decryptedContent = await decryptionPipe(
-    peekabooLocation,
-    rawKey,
-    found.iv,
-    found.salt,
-    decryptedZip
-  );
-  console.log(
-    chalk.green(
-      `Decrypyted boofile created successfully`,
-      JSON.stringify(decryptedContent)
-    )
-  );
+  console.log('Now lets decrypt...');
+  const decrypted = await decrypt(rawKey, cwd, iv, salt, name);
+  console.log('Decryption secret (buffer)', decrypted.secret);
+  console.log('Decryption secret (hex)', decrypted.secret.toString('hex'));
+  console.log('Decryption tint', decrypted.tint);
+
+  const dmetadataPath = `${cwd}\\${name}\\${name}.json`;
+  const dencZipPath = `${cwd}\\${name}\\${name}.enc.zip`;
+
+  await unpackZip(zipPath, explodeZipPath);
+  await verifyMetadataAndChecksum(dmetadataPath, dencZipPath);
+  await unpackZip(dencZipPath, originalLocation);
+  await finaliseDecryption(cwd, name);
+
+  console.log('Successfully decrypted');
 
   return null;
 });
 
-ipcMain.handle('ENCRYPT_DIR', async (event, pathToData) => {
-  console.log(chalk.yellow(`ENCRYPT_DIR`, event, pathToData));
+ipcMain.handle('ENCRYPT', async (event, pathToData) => {
+  console.log(chalk.yellow(`ENCRYPT`, event, pathToData));
 
-  const vaultPath = `${app.getPath('userData')}\\vault\\`;
+  const vaultPath = `${app.getPath('userData')}\\vault`;
   if (!fs.existsSync(vaultPath)) fs.mkdirSync(vaultPath);
 
-  // const size = await dirSize(pathToData);
-  const obsfucatedName = uniqueName();
-  console.log(chalk.blue(`About to encrypt directory: ${pathToData} ...`));
-  console.log(chalk.blue(`Will give object name of ${obsfucatedName}`));
+  const isDirectory = await checkIfDirectory(pathToData);
+  if (!checkExists(pathToData)) {
+    console.error(`The target file doesn't exist!`);
+    return false;
+  }
+  if (!isDirectory) {
+    console.error(`Peekaboo only encrypts folders`);
+    return false;
+  }
+  const name = uniqueName();
 
+  console.log('Secure name: ', name);
+  console.log('Is directory?: ', isDirectory);
+  console.log(chalk.blue(`About to encrypt directory: ${pathToData} ...`));
+  console.log(chalk.blue(`Will give object name of ${name}`));
+
+  // todo: this might need reworking as it won't go behind the root to count
   let itemCount = 1;
   fs.readdir(pathToData, (err, files) => {
     itemCount = files.length;
   });
-  fs.statSync(pathToData);
 
-  const booFile = `${vaultPath}\\${obsfucatedName}.boo`;
-  const exists = fs.existsSync(booFile);
+  // abstraction, but it keeps everything as cwd hereafter
+  const cwd = vaultPath;
+  const metadata = `${cwd}\\${name}.json`;
+  const zipPath = `${cwd}\\${name}.zip`;
+  const encZipPath = `${cwd}\\${name}.enc.zip`;
+  const booPath = `${cwd}\\${name}.boo`;
+  const packSize = await lstat(cwd);
 
-  console.log(chalk.green(`And then move it to: ${booFile}`));
-  console.log('ENCRYPT_DIR', 'Does file exist?', exists);
-  if (exists) return false;
+  const exists = fs.existsSync(booPath);
+  if (exists) {
+    console.error(`The boo file already exists, cannot continue`);
+    return false;
+  }
 
-  const { archive, size } = await zip(pathToData, vaultPath, obsfucatedName);
-  console.log(chalk.green(`Archive created successfully`, archive));
-
-  const encryptedContent = await encryptionPipe(archive, rawKey, booFile);
-  console.log(
-    chalk.green(
-      `Encrypted boofile created successfully`,
-      encryptedContent.iv,
-      encryptedContent.hash,
-      encryptedContent.salt
-    )
-  );
+  await packTarget(pathToData, encZipPath);
+  await createMetaData(metadata, encZipPath);
+  await createZip(encZipPath, metadata, zipPath);
+  const encrypted = await encrypt(rawKey, zipPath, booPath);
+  const salt = encrypted.salt;
+  const iv = encrypted.iv;
+  const finalised = await finaliseEncryption(cwd, name, salt, iv, pathToData);
+  console.log('Encryption secret (buffer)', encrypted.secret);
+  console.log('Encryption secret (hex)', encrypted.secret.toString('hex')); // todo: remove this
+  console.log('Encryption complete', finalised);
 
   localStore = new Store({
     name: 'peekaboo',
     watch: true,
-    // encryptionKey: key,
   });
 
   const storeContent = (await localStore.get('contents')) || [];
   storeContent.push({
     id: randomUUID(),
-    iv: encryptedContent.iv,
-    salt: encryptedContent.salt,
+    iv: iv,
+    salt: salt,
     color: shuffle(availableColors)[2],
-    friendlyName: obsfucatedName,
-    secureName: obsfucatedName,
+    friendlyName: name,
+    secureName: name,
     originalLocation: Buffer.from(pathToData).toString('base64'),
-    peekabooLocation: Buffer.from(booFile).toString('base64'),
+    peekabooLocation: Buffer.from(booPath).toString('base64'),
     status: 'locked',
-    diskSize: size,
+    diskSize: packSize.size,
     itemCount: itemCount,
     created: dayjs().toDate(),
     modified: dayjs().toDate(),
   });
-
-  console.log(
-    chalk.green(`Successfully encrypted: ${booFile} and set into local store`)
-  );
-
   localStore.set('contents', storeContent);
-
-  await delay(1000);
-
-  fs.unlinkSync(archive);
-  fs.rmSync(pathToData, { recursive: true, force: true });
-
-  console.log(chalk.green(`Removed archive: ${archive}`));
-
+  console.log('Encryption operation complete');
   return true;
 });
 

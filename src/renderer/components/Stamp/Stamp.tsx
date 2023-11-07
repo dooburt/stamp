@@ -4,13 +4,13 @@ import { motion } from 'framer-motion';
 import classNames from 'classnames';
 import { mergeClasses } from 'renderer/core/utils';
 
-import ghost from '../../assets/ghost.png';
+import stamp from '../../assets/postage.png';
 
-type GhostProps = {
+type StampProps = {
   classes?: string[];
 };
 
-const Ghost: React.FC<GhostProps> = ({ classes }) => {
+const Stamp: React.FC<StampProps> = ({ classes }) => {
   const slideAnimation = {
     initial: { opacity: 0, scale: 0.4 },
     animate: { opacity: 1, scale: 1.0 },
@@ -27,15 +27,15 @@ const Ghost: React.FC<GhostProps> = ({ classes }) => {
         className={classNames(
           mergeClasses(['bg-contain', 'bg-no-repeat'], classes)
         )}
-        src={ghost}
-        alt="Peekaboo"
+        src={stamp}
+        alt="Stamp"
       />
     </motion.div>
   );
 };
 
-Ghost.defaultProps = {
+Stamp.defaultProps = {
   classes: [],
 };
 
-export default Ghost;
+export default Stamp;

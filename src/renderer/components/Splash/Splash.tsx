@@ -29,7 +29,7 @@ function Splash() {
         animate={slideAnimation.animate}
         transition={slideAnimation.transition}
         src={splash}
-        alt="Peekaboo"
+        alt="Stamp"
         className="w-full h-full object-cover"
       />
     </div>

@@ -1,86 +1,100 @@
+/* eslint-disable no-console */
 /* eslint-disable no-bitwise */
-import { pipeline } from 'stream/promises';
-import {
-  createReadStream,
-  createWriteStream,
-  readFileSync,
-  writeFileSync,
-} from 'fs';
-import {
-  createCipheriv,
-  createHash,
-  createHmac,
-  pbkdf2Sync,
-  randomBytes,
-} from 'crypto';
+const chalk = require('chalk');
+const { createCipheriv, pbkdf2Sync, randomBytes } = require('crypto');
+const { pipeline } = require('stream');
+const { promisify } = require('util');
+const { createWriteStream, createReadStream, unlinkSync } = require('fs');
+const { lstat, writeFile } = require('node:fs/promises');
+const { createChecksum, deleteTarget } = require('./util');
 
-// C:\Users\dooburt\AppData\Roaming\peekaboo\vault
+const pipelineAsync = promisify(pipeline);
 
-const zerosalt = new Uint8Array(8);
+const finaliseEncryption = async (
+  cwd: string,
+  name: string,
+  salt: string,
+  iv: string,
+  originalTarget: string
+) => {
+  if (!cwd)
+    throw new Error('Need a current working directory where the files are');
+  if (!name) throw new Error('Need the name of the encrypted operation');
+  if (!salt) throw new Error('Need a salt');
+  if (!iv) throw new Error('Need an IV');
 
-function deriveKeys(key: Uint8Array, name: string) {
-  const prk = createHmac('sha256', zerosalt).update(key).digest();
-  const b = Buffer.alloc(1, 1);
-  const aesKey = createHmac('sha256', prk)
-    .update(name, 'utf-8')
-    .update(b)
-    .digest();
-  b[0] = 2;
-  const hmacKey = createHmac('sha256', prk)
-    .update(aesKey)
-    .update(name, 'utf-8')
-    .update(b)
-    .digest();
-  return [aesKey, hmacKey];
-}
+  const boo = `${cwd}\\${name}.boo`;
+  const tar = `${cwd}\\${name}.enc.zip`;
+  const zip = `${cwd}\\${name}.zip`;
+  const json = `${cwd}\\${name}.json`;
+
+  // const checksum = createHash('md5').update(boo).digest('hex');
+  const checksum = await createChecksum(boo);
+  const stats = await lstat(boo);
+
+  console.log('Cleaning up...');
+  unlinkSync(tar);
+  unlinkSync(json);
+  unlinkSync(zip);
+  deleteTarget(originalTarget);
+  console.log('Done cleaning up...');
+
+  return {
+    name,
+    cwd,
+    salt,
+    iv,
+    checksum,
+    stats,
+    path: boo,
+  };
+};
+
+const createMetaData = async (metadataPath: string, tarPath: string) => {
+  if (!metadataPath) throw new Error('Need a metadata path');
+  if (!tarPath) throw new Error('Need a tar path');
+  // const checksum = createHash('md5').update(tarPath).digest('hex');
+  const checksum = await createChecksum(tarPath);
+  const stats = await lstat(tarPath);
+  console.log(chalk.yellow('TAR Checksum', checksum));
+  const json = {
+    path: tarPath,
+    stats,
+    checksum,
+  };
+
+  await writeFile(metadataPath, JSON.stringify(json));
+  return true;
+};
 
 /**
- * encrypt the things
- *
- * @param {string} pathToZip the path to the zip file that we are going to encrypt
- * @param {Uint8Array} key the encryption key to use
- * @param {string} pathToBoo the path to the final boo file we wish to create
+ * Encrypt a file into a boo file
+ * @param {string} key String key/password
+ * @param {string} zipPath The path to the zip we are going to encrypt
+ * @param {string} booPath The path to the final *.boo file that contains the encrypted contents
+ * @returns {object} containing the `salt` and `iv`
  */
-async function encryptionPipe(
-  pathToZip: string,
-  key: string,
-  pathToBoo: string
-) {
-  // https://fireship.io/lessons/node-crypto-examples/
-  // https://brandonstilson.com/encrypting-files-with-node/
-  // https://matrix-org.github.io/matrix-js-sdk/6.0.0-rc.1/crypto_aes.js.html
-  // we must store the IV, it is required for decryption
-  // const hash = createHash('sha256')
-  //   .update(String(key))
-  //   .digest('base64')
-  //   .substr(0, 32);
+const encrypt = async (key: string, zipPath: string, booPath: string) => {
+  if (!key) throw new Error('Need a key');
+  if (!zipPath) throw new Error('Need a zip path');
+  if (!booPath) throw new Error('Need a boo path');
 
   const salt = randomBytes(128).toString('base64');
-  const hash = pbkdf2Sync(String(key), salt, 10000, 32, 'sha256');
-
+  const hash = pbkdf2Sync(key, salt, 1000, 32, 'sha256');
   const iv = randomBytes(16);
 
-  console.log('salt', salt);
-  console.log('hash', hash, hash.length);
-  console.log('iv', iv, iv.length);
-  console.log('iv hex', iv.toString('hex'));
+  await pipelineAsync(
+    createReadStream(zipPath),
+    createCipheriv('aes-256-ctr', hash, iv),
+    createWriteStream(booPath)
+  );
 
-  const zipFile = readFileSync(pathToZip);
-  const cipher = createCipheriv('aes-256-cbc', hash, iv).setAutoPadding(true);
+  // todo: ok here for experimentation, but secret cannot be returned in app
+  return {
+    salt,
+    secret: hash,
+    iv: iv.toString('base64'),
+  };
+};
 
-  let encrypted = cipher.update(zipFile);
-  encrypted = Buffer.concat([encrypted, cipher.final()]);
-
-  writeFileSync(pathToBoo, encrypted);
-
-  // const data = await pipeline(
-  //   createReadStream(pathToZip),
-  //   createCipheriv('aes-256-cbc', hash, iv).setAutoPadding(true),
-  //   createWriteStream(pathToBoo)
-  // );
-  // console.log('Encryption pipe', data, iv, hash, salt);
-
-  return { iv: iv.toString('hex'), hash, salt };
-}
-
-export default encryptionPipe;
+export { finaliseEncryption, encrypt, createMetaData };

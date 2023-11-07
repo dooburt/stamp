@@ -6,17 +6,14 @@
 /* eslint-disable no-console */
 const chalk = require('chalk');
 const AdmZip = require('adm-zip');
-const tarStream = require('tar-stream');
-const Gunzip = require('gunzip-maybe');
 const {
   createWriteStream,
   createReadStream,
   unlinkSync,
   rmSync,
   existsSync,
-  mkdirSync,
 } = require('fs');
-const { readdir, lstat, writeFile, readFile } = require('node:fs/promises');
+const { lstat, writeFile, readFile } = require('node:fs/promises');
 const {
   createCipheriv,
   createDecipheriv,
@@ -26,7 +23,6 @@ const {
 } = require('crypto');
 const { pipeline } = require('stream');
 const { promisify } = require('util');
-const { resolve } = require('path');
 const archiver = require('archiver');
 const {
   uniqueNamesGenerator,
