@@ -1,7 +1,9 @@
+/* eslint-disable object-shorthand */
+/* eslint-disable react/jsx-no-constructed-context-values */
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 
-import Dashboard from './screens/Dashboard/Dashboard';
 import Hello from './screens/Hello/Hello';
+import Mailbox from './screens/Mailbox/Mailbox';
 import { Size, useWindowSize } from './core/hooks';
 import Splash from './components/Splash/Splash';
 import logo from './assets/postage.png';
@@ -23,7 +25,7 @@ export default function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Splash />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/mailbox" element={<Mailbox />} />
             <Route path="/hello" element={<Hello />} />
           </Routes>
         </Router>

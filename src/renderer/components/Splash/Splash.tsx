@@ -8,6 +8,7 @@ function Splash() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // todo: if user exists in context, just redirect to mailbox
     setTimeout(() => {
       navigate('/hello');
     }, 3000);
