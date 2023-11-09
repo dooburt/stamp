@@ -17,9 +17,9 @@ export default function App() {
 
   return (
     <>
-      <div id="dragbar" className="fixed z-10 w-full h-[31px] bg-slate-800">
-        <img src={logo} alt="Stamp" width="20px" className="inline m-2" />
-        <span className="text-white inline-block mt-1">Stamp</span>
+      <div id="dragbar" className="fixed z-10 w-full h-[31px]">
+        {/* <img src={logo} alt="Stamp" width="20px" className="inline m-2" />
+        <span className="text-white inline-block mt-1">Stamp</span> */}
       </div>
       <div className="h-screen overflow-hidden">
         <Router>

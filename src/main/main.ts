@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable func-names */
 /* eslint-disable object-shorthand */
@@ -236,8 +237,8 @@ const createWindow = async () => {
     },
     titleBarStyle: 'hidden',
     titleBarOverlay: {
-      color: '#1E293B',
-      symbolColor: '#fff',
+      color: '#fff',
+      symbolColor: '#1E293B',
       height: 31,
     },
   });
