@@ -22,6 +22,7 @@ import Store from 'electron-store';
 import { Deeplink } from 'electron-deeplink';
 import MenuBuilder from './menu';
 import { getAssetsPath, getComputerName, resolveHtmlPath } from './util';
+import InitiatePayload from 'types/initiatePayload';
 
 const VERSION = '0.0.1'; // get from package eventually
 const HEIGHT = 728;
@@ -92,6 +93,27 @@ ipcMain.handle('SNIFF_STORE', async () => {
   console.log('SNIFF_STORE', exists);
   // event.reply('SNIFF_STORE', exists);
   return exists;
+});
+
+ipcMain.handle('INITIATE_USER', async (event, payload: InitiatePayload) => {
+  console.log(chalk.yellow(`INITIATE_USER`));
+
+  const deviceName = getComputerName() || 'ὓṇḵṅṏẁṉ';
+
+  localStore = new Store({
+    name: 'stamp',
+    watch: true,
+    // encryptionKey: key,
+  });
+  localStore.set('device', {
+    name: deviceName,
+  });
+  localStore.set('user', {
+    ...payload,
+  });
+
+  console.log('INITIATE_USER', 'Success');
+  return true;
 });
 
 ipcMain.handle('GET_USER', async () => {

@@ -1,5 +1,5 @@
 function Mailbox() {
-  return <div>Mailbox</div>;
+  return <div className="flex mt-[24px]">Mailbox</div>;
 }
 
 export default Mailbox;

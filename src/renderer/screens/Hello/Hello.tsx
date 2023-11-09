@@ -4,36 +4,52 @@
 /* eslint-disable react/no-unescaped-entities */
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import EnterMasterPassword from 'renderer/components/EnterMasterPassword/EnterMasterPassword';
 import Splashback from 'renderer/components/Splashback/Splashback';
 import Heading from '../../components/Heading/Heading';
 import ProviderList from 'renderer/components/ProviderList/ProviderList';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth, signInGoogle } from '../../core/firebase';
+import InitiatePayload from 'types/initiatePayload';
+import UrlAvatar from 'renderer/components/UrlAvatar/UrlAvatar';
+import { useNavigate } from 'react-router-dom';
 
 function Hello() {
-  const [hasStore, setHasStore] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState({
+    photoURL: '',
+    displayName: '',
+    email: '',
+  });
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const sniffStore = async () => {
-      const sniff = await window.electron.sniffStore();
-      console.log('sniffed', sniff);
-      setHasStore(sniff);
-    };
-
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         const { uid } = user;
         console.log('logged in', user);
         console.log('uid', uid);
+        console.log('window.electron', window.electron);
         // todo: get rid of "sniffStore", auth is the switch
         // call a electron endpoint to "save" the user, also "save" the user here into context
+        const payload: InitiatePayload = {
+          ...user,
+        };
+        await window.electron.initiateUser(JSON.stringify(payload));
+        setLoggedInUser({
+          photoURL: user.photoURL || '',
+          displayName: user.displayName || '',
+          email: user.email || '',
+        });
+        setReady(true);
+
+        setTimeout(() => {
+          navigate('/mailbox');
+        }, 3000);
       } else {
         console.log('logged out');
+        setReady(false);
       }
     });
-
-    sniffStore();
   }, []);
 
   const onProviderSelect = async () => {
@@ -65,22 +81,20 @@ function Hello() {
     return (
       <>
         <div className="flex flex-row mb-6">
-          {/* <div className="relative rounded-full w-24 h-24 bg-contain">
-            <Stamp classes={['w-24', 'h-24']} />
-          </div> */}
-          <div className="ml-4 mt-8">
-            <Heading title="Hey there 👋" />
+          <div className="relative rounded-full w-24 h-24 bg-contain">
+            <UrlAvatar
+              url={loggedInUser.photoURL}
+              classes={['w-24', 'h-24', 'rounded-full']}
+            />
+          </div>
+          <div className="mt-2 ml-4">
+            <Heading title={`Welcome back ${loggedInUser.displayName}`} />
           </div>
         </div>
-        <p className="text-slate-500">
-          Welcome back. Log back into your email provider to get going.
-        </p>
-        <EnterMasterPassword />
+        <p className="text-slate-500 animate-pulse">Just a moment...</p>
       </>
     );
   }
-
-  console.log('hasStore', hasStore);
 
   const slideAnimation = {
     initial: { opacity: 0 },
@@ -101,7 +115,7 @@ function Hello() {
         </motion.div>
         <div className="flex col-span-8 justify-center items-center w-128 m-auto">
           <div className="flex flex-col p-6 max-w-md justify-center">
-            {hasStore ? renderTouched() : renderPreTouch()}
+            {ready ? renderTouched() : renderPreTouch()}
           </div>
         </div>
       </div>

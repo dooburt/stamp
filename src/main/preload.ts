@@ -2,8 +2,18 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+import InitiatePayload from 'types/initiatePayload';
 
 contextBridge.exposeInMainWorld('electron', {
+  initiateUser: async (payload: InitiatePayload) => {
+    try {
+      console.log('context initiateUser', payload);
+      return await ipcRenderer.invoke('INITIATE_USER', payload);
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  },
   getConsole: async () => {
     try {
       return await ipcRenderer.invoke('GET_CONSOLE');
